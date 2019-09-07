@@ -12,8 +12,8 @@ import { Content, View, List, ListItem, Left, Right, Icon } from 'native-base'
 import BoxState from './BoxState';
 
 class TransformerViewer extends Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
     }
 
     componentDidMount() {
@@ -25,13 +25,24 @@ class TransformerViewer extends Component {
         let items = false
         if (transformers.length) {
             items = transformers.map((t, i) => (
-                <ListItem button={true} key={i}>
+                <ListItem button={true} key={i}
+                    >
+                    <TouchableOpacity 
+                        style={{flex: 1, flexDirection: 'row'}}
+                        onPress={() => {
+                            this.props.navigation.navigate('TransformerView', {
+                                transformer_id: t._id,
+                                structure: t.structure
+                            })
+                        }}
+                        >
                     <Left>
                         <Text>{t.structure}</Text>
                     </Left>
                     <Right>
                         <Icon name='arrow-forward'/>
                     </Right>
+                    </TouchableOpacity>
                 </ListItem>
             ))
         }

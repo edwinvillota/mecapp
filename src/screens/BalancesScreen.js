@@ -30,11 +30,14 @@ export default class BalancesScreen extends Component {
     }
 
     render () {
+        const { state, navigate } = this.props.navigation
         return (
             <View style={{flex: 1}}>
                 <PageHeader text='Balances Energéticos'/>
                 <Card>
-                    <CardItem>
+                    <CardItem button
+                        onPress={() => navigate('Transformers')}
+                        >
                         <Icon active name='flash' style={{color: '#EBB004'}}/>
                         <Text>Transformadores</Text>
                         <Right>

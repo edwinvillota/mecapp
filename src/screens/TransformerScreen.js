@@ -3,11 +3,11 @@ import {
     View,
     ScrollView
 } from 'react-native'
-import { Fab, Button, Icon } from 'native-base'
+import { Fab, Button, Icon, Header, Left, Body, Title, Right } from 'native-base'
 import VectorIcon from 'react-native-vector-icons/FontAwesome'
-
 import PageHeader from '../components/PageHeader'
 import TransformersViewer from '../components/TransformersViewer'
+import { Colors } from '../config'
 
 export default class TransformerScreen extends Component {
     constructor(props) {
@@ -19,16 +19,27 @@ export default class TransformerScreen extends Component {
 
     static navigationOptions = {
         title: 'Transformadores',
-        drawerIcon: ({tintColor}) => (
-            <VectorIcon name='plug' size={24} style={[{width: 24, height: 24}, {color: tintColor}]} />
-        )
+        drawerLabel: () => (null)
     }
 
     render(){
         return (
             <View style={{flex: 1}}>
-                <PageHeader text='Transformadores'/>
-                <TransformersViewer />
+                <Header androidStatusBarColor='black' style={{backgroundColor: Colors.background}}>
+                    <Left>
+                        <Button transparent
+                            onPress={ () => {
+                                this.props.navigation.navigate('Balances')
+                            }}
+                            >
+                            <Icon name='arrow-back'/>
+                        </Button>
+                    </Left>
+                    <Body>
+                        <Title>Transformadores</Title>
+                    </Body>
+                </Header>
+                <TransformersViewer navigation={this.props.navigation} />
                 <Fab
                     active={this.state.active}
                     direction="up"
