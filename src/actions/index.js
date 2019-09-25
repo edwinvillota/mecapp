@@ -2,7 +2,7 @@ import {OPEN_SIDEBAR, CLOSE_SIDEBAR} from '../types'
 import {LOGIN_REQUEST, LOGIN_FAILURE, LOGIN_SUCCESS, LOGOUT,
         SET_SEARCH_TYPE, SET_DEVICE_NUMBER,
         PREV_INFO_REQUEST, PREV_INFO_FAILURE, PREV_INFO_SUCCESS,
-        BOX_INFO_SUCCESS, GET_ALL_TRANSFORMERS
+        BOX_INFO_SUCCESS, GET_ALL_TRANSFORMERS, GET_TRANSFORMER_DATA, SET_TRANSFORMER_REQUEST_STATUS
     } from '../types'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
@@ -185,6 +185,13 @@ export const getBoxInfo = (prevInfo) => {
 
 // Balance Actions
 
+export const setTransformerRequestStatus = (newStatus) => {
+    return {
+        type: SET_TRANSFORMER_REQUEST_STATUS,
+        requestStatus: newStatus
+    }
+}
+
 export const getAllTransformersSuccess = (transformers) => {
     return {
         type: GET_ALL_TRANSFORMERS,
@@ -206,3 +213,27 @@ export const getAllTransformers = () => {
             })
     }
 }
+
+export const getTransformerDataSuccess = (transformer_data) => {
+    return {
+        type: GET_TRANSFORMER_DATA,
+        transformer_data
+    }
+}
+
+export const getTransformerData = (id) => {
+    return (dispatch, getState) => {
+        dispatch(setTransformerRequestStatus('REQUESTING'))
+        const { url } = getState().api
+        const endpoint = `${url}/transformer/${id}`
+        return axios.get(endpoint)
+            .then(response => {
+                const data = response.data
+                dispatch(getTransformerDataSuccess(data))
+            })
+            .catch(err => {
+                alert(err)
+            })
+    }
+}
+

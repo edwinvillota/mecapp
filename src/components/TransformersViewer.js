@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getAllTransformers } from '../actions'
+import { getAllTransformers, getTransformerData } from '../actions'
 import {
     AppRegistry,
     StyleSheet,
@@ -9,7 +9,6 @@ import {
     ScrollView
 } from 'react-native'
 import { Content, View, List, ListItem, Left, Right, Icon } from 'native-base'
-import BoxState from './BoxState';
 
 class TransformerViewer extends Component {
     constructor(props) {
@@ -30,6 +29,7 @@ class TransformerViewer extends Component {
                     <TouchableOpacity 
                         style={{flex: 1, flexDirection: 'row'}}
                         onPress={() => {
+                            this.props.getTransformerData(t._id)
                             this.props.navigation.navigate('TransformerView', {
                                 transformer_id: t._id,
                                 structure: t.structure
@@ -68,9 +68,10 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     getAllTransformers: () => {
         dispatch(getAllTransformers())
+    },
+    getTransformerData: (id) => {
+        dispatch(getTransformerData(id))
     }
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(TransformerViewer)
-
-AppRegistry.registerComponent('pics2folder', BoxState)  

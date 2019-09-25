@@ -1,10 +1,18 @@
 import { 
-    GET_ALL_TRANSFORMERS 
+    GET_ALL_TRANSFORMERS,
+    GET_TRANSFORMER_DATA,
+    SET_TRANSFORMER_REQUEST_STATUS
 } from '../types'
 
 const initialState = {
     transformers: [],
-    requestStatus: 'WAITING'
+    requestStatus: 'WAITING',
+    transformer_data: {
+        transformer_info: {
+            structure: ''
+        },
+        users: []
+    }
 }
 
 export default balanceReducer = (state = initialState, action) => {
@@ -14,6 +22,17 @@ export default balanceReducer = (state = initialState, action) => {
                 ...state,
                 requestStatus: 'SUCESSS',
                 transformers: action.transformers
+            }
+        case GET_TRANSFORMER_DATA:
+            return {
+                ...state,
+                requestStatus: 'SUCCESS',
+                transformer_data: action.transformer_data
+            }
+        case SET_TRANSFORMER_REQUEST_STATUS:
+            return {
+                ...state,
+                requestStatus: action.newStatus
             }
         default:
             return state
