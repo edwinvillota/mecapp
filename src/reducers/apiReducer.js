@@ -1,7 +1,7 @@
 import {ENDPOINT} from '../types'
 
 const initialState = {
-    url: 'http://10.0.2.2:5000/api'
+    url: 'http://181.62.161.186:5000/api'
 }
 
 export default apiReducer = (state = initialState, action) => {

@@ -5,7 +5,7 @@ import {
     ScrollView,
     StyleSheet
 } from 'react-native'
-import { Header, Left, Button, Title, Body, Icon, Text, Tabs, Tab, TabHeading, Spinner, Fab} from 'native-base'
+import { Header, Left, Button, Title, Body, Icon, Text, Tabs, Tab, TabHeading, Spinner, ActionSheet} from 'native-base'
 import { Colors } from '../config'
 import { getTransformerData, setTransformerRequestStatus } from '../actions'
 
@@ -25,6 +25,7 @@ class TransformerViewScreen extends Component {
     render () {
         let { transformer_info, users } = this.props.balance.transformer_data 
         let { requestStatus } = this.props.balance
+        const BUTTONS = ['Levantamiento', 'Toma de Lecturas', 'Borrar', 'Cancelar']
         return (
             <View style={{flex: 1}}>
                 <Header androidStatusBarColor='black' style={{backgroundColor: Colors.background}}>
@@ -47,6 +48,33 @@ class TransformerViewScreen extends Component {
                             <Tab heading={ <TabHeading style={styles.tabHeading} ><Icon type='MaterialIcons' name='dashboard'/><Text></Text></TabHeading> }>
                                 <ScrollView>
                                     <Text>{`Estructura: ${transformer_info.structure}`}</Text>
+                                    <Button full info
+                                        onPress={() => {
+                                            ActionSheet.show(
+                                                {
+                                                    options: BUTTONS,
+                                                    cancelButtonIndex: 3,
+                                                    destructiveButtonIndex: 2,
+                                                    title: 'NUEVA ACCIÓN'
+                                                },
+                                                buttonIndex => {
+                                                    switch (buttonIndex) {
+                                                        case 0:
+                                                            this.props.navigation.navigate('StakeOut',{
+                                                                transformer_id: this.props.navigation.getParam('transformer_id'),
+                                                                structure: this.props.navigation.getParam('structure')
+                                                            })
+                                                            break;
+                                                    
+                                                        default:
+                                                            break;
+                                                    }
+                                                }
+                                            )
+                                        }}
+                                        >
+                                        <Text>Acciones</Text>
+                                    </Button>
                                 </ScrollView>
                             </Tab>
                             <Tab heading={ <TabHeading style={styles.tabHeading}><Icon type='MaterialIcons' name='home'/></TabHeading> }>
@@ -63,28 +91,6 @@ class TransformerViewScreen extends Component {
                         </Tabs>) :
                     (<Spinner/>)
                 }
-                <Fab
-                    active={this.state.fabActive}
-                    direction="up"
-                    containerStyle={{ }}
-                    style={{ backgroundColor: Colors.primary }}
-                    position="bottomRight"
-                    onPress={() => this.setState({ fabActive: !this.state.fabActive })}
-                    
-                    >
-                    <Icon name="plus" type='Entypo'/>
-                    <Button 
-                        style={{ backgroundColor: '#34A34F' }}
-                        onPress={() => this.props.navigation.navigate('StakeOut', {
-                            structure: this.props.navigation.getParam('structure')
-                        })}
-                        >
-                        <Icon name="paper"/>
-                    </Button>
-                    <Button style={{ backgroundColor: '#3B5998' }}>
-                        <Icon name="gauge" type='Entypo'/>
-                    </Button>
-                </Fab>
             </View>
         )
     }

@@ -21,7 +21,15 @@ class BalanceUserList extends Component {
         const users = balance.transformer_data.users
         const userRows = users.map((u, i) => (
             <ListItem key={i}>
-                <TouchableOpacity style={styles.touchableOpacity}>
+                <TouchableOpacity style={styles.touchableOpacity}
+                    onPress={() => {
+                        this.props.navigation.navigate('UserStakeOut', {
+                            transformer_id: this.props.navigation.getParam('transformer_id'),
+                            structure: this.props.navigation.getParam('structure'),
+                            user: u
+                        })
+                    }}
+                    >
                     <Text style={styles.textListItem}>{`${u.brand} - ${u.meter}`}</Text>
                 </TouchableOpacity>
             </ListItem>

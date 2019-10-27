@@ -6,7 +6,8 @@ import {
     View,
     Text,
     StyleSheet,
-    ScrollView
+    ScrollView,
+    Button
 } from 'react-native'
 import {Colors} from '../config'
 import PageHeader from '../components/PageHeader'

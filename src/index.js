@@ -13,6 +13,8 @@ import TransformerScreen from './screens/TransformerScreen'
 import BalancesScreen from './screens/BalancesScreen'
 import TransformerViewScreen from './screens/TransformerViewScreen'
 import StakeOutScreen from './screens/StakeOutScreen'
+import UserStakeOutScreen from './screens/UserStakeOutScreen'
+import ConfigScreen from './screens/ConfigScreen'
 
 const AuthStack = createStackNavigator({
     Login: LoginScreen
@@ -26,6 +28,8 @@ const AppNavigator = createDrawerNavigator(
         Transformers: TransformerScreen,
         Balances: BalancesScreen,
         StakeOut: StakeOutScreen,
+        UserStakeOut: UserStakeOutScreen,
+        Config: ConfigScreen,
         About: AboutScreen,
         Logout: LogoutScreen
     },

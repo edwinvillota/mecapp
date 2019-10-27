@@ -11,7 +11,7 @@ class UserAccordion extends Component {
     }
 
     _renderHeader(item, expanded) {
-        const backgroundColor = item.lecturas[0].lectura ? '#CCCCCC' : '#FF5050' 
+        const backgroundColor = !item.lecturas[0].anomalia ? '#CCCCCC' : '#FF5050' 
         return (
             <View style={{
                 flexDirection: "row",
@@ -44,14 +44,14 @@ class UserAccordion extends Component {
                         <Text>{item.tipo}</Text>
                     </Col>
                     <Col>
-                        <Text style={styles.title}>SERVICIO</Text>
-                        <Text>{item.servicio}</Text>
+                        <Text style={styles.title}>ANOMALÍA</Text>
+                        <Text>{item.lecturas[0].anomalia}</Text>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
                         <Text style={styles.title}>LECTURA</Text>
-                        <Text>{item.lecturas[0].lectura}</Text>
+                        <Text>{item.lecturas[0].lectura_activa}</Text>
                     </Col>
                     <Col>
                         <Text style={styles.title}>FECHA LECTURA</Text>

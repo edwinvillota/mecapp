@@ -36,7 +36,7 @@ export default class StakeOutScreen extends Component {
                         <Title>Levantamiento</Title>
                     </Body>
                 </Header>
-                <BalanceUserList />
+                <BalanceUserList navigation={this.props.navigation}/>
             </View>
         )
     }

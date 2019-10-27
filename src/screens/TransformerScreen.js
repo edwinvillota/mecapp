@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import {
     View,
     ScrollView
 } from 'react-native'
 import { Fab, Button, Icon, Header, Left, Body, Title, Right } from 'native-base'
-import VectorIcon from 'react-native-vector-icons/FontAwesome'
-import PageHeader from '../components/PageHeader'
 import TransformersViewer from '../components/TransformersViewer'
 import { Colors } from '../config'
+import { getAllTransformers } from '../actions'
 
-export default class TransformerScreen extends Component {
+class TransformerScreen extends Component {
     constructor(props) {
         super(props)
     }
@@ -17,6 +17,10 @@ export default class TransformerScreen extends Component {
     static navigationOptions = {
         title: 'Transformadores',
         drawerLabel: () => (null)
+    }
+
+    handleRefreshTransformers = () => {
+        this.props.getAllTransformers()
     }
 
     render(){
@@ -43,6 +47,7 @@ export default class TransformerScreen extends Component {
                     containerStyle={{ }}
                     style={{ backgroundColor: '#5067FF' }}
                     position="bottomRight"
+                    onPress={this.handleRefreshTransformers}
                     >
                     <Icon name="sync" />
                 </Fab>
@@ -50,4 +55,16 @@ export default class TransformerScreen extends Component {
         )
     }
 }
+
+const mapStateToProps = state => ({
+    balance: state.balance
+})
+
+const mapDispatchToProps = dispatch => ({
+    getAllTransformers: () => {
+        dispatch(getAllTransformers())
+    }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(TransformerScreen)
 
