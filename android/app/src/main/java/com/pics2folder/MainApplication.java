@@ -4,6 +4,7 @@ import android.app.Application;
 
 import org.reactnative.camera.RNCameraPackage;
 import com.facebook.react.ReactApplication;
+import com.horcrux.svg.SvgPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.rnfs.RNFSPackage;
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new SvgPackage(),
             new ImagePickerPackage(),
           new RNGestureHandlerPackage(),
           new RNCameraPackage(),

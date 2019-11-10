@@ -18,7 +18,6 @@ import {
     Text,
     Right,
 } from 'native-base'
- 'native-base'
 
 class ConfigScreen extends Component {
     constructor(props) {

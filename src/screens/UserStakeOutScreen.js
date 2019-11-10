@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import axios from 'axios'
 import {
     AppRegistry,
     StyleSheet,
@@ -27,9 +28,15 @@ class UserStakeOutScreen extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            user: this.props.navigation.getParam('user'),
             ubicacion: {
                 coords: {}
-            }
+            },
+            lecAct: null,
+            lecActPhoto: false,
+            lecRea: null,
+            lecReaPhoto: false,
+            node: null
         }
     }
 
@@ -40,6 +47,70 @@ class UserStakeOutScreen extends Component {
 
     componentDidMount(){
         this.getGeolocation()
+    }
+
+    uploadUser = () => {
+        const { api } = this.props
+        const { user, lecActPhoto, lecReaPhoto, ubicacion } = this.state
+        const endpoint = `${api.url}/transformer/${user.transformer}/addUser`
+        let formData = new FormData()
+
+        // Add user information
+        formData.append('user', JSON.stringify(user))
+        formData.append('location', JSON.stringify(ubicacion.coords))
+        formData.append('node', this.state.node)
+        formData.append('lecAct', this.state.lecAct)
+        formData.append('lecRea', this.state.lecRea)
+        formData.append(`Activa`, {uri: lecActPhoto.uri, name: `${user.meter}-stakeout-activeLec`, type: 'image/jpeg'})
+        formData.append(`Reactiva`, {uri: lecReaPhoto.uri, name: `${user.meter}-stakeout-reactiveLec`, type: 'image/jpeg'})
+
+        axios.post(endpoint, formData)
+        .then(response => {
+            console.log(response)
+        })
+        .catch(err =>   {
+            console.log(err)
+        })
+    }
+
+    handleChangeNode = val => {
+        this.setState({
+            node: val
+        })
+    }
+
+    handleChangeLecture = (type, value) => {
+        switch (type) {
+            case 1:
+                this.setState({
+                    lecAct: value
+                })
+                break;
+            case 2:
+                this.setState({
+                    lecRea: value
+                })
+                break;
+            default:
+                break;
+        }
+    }
+
+    handlePhotoCapture = photo => {
+        switch (photo.type) {
+            case 1:
+                this.setState({
+                    lecActPhoto: photo
+                })
+                break;
+            case 2:
+                this.setState({
+                    lecReaPhoto: photo
+                })
+                break;
+            default:
+                break;
+        }
     }
 
     getGeolocation = () => {
@@ -56,7 +127,7 @@ class UserStakeOutScreen extends Component {
     }
 
     render() {
-        const user = this.props.navigation.getParam('user')
+        const {user} = this.state
         return (
             <Container>
                 <Header 
@@ -82,31 +153,40 @@ class UserStakeOutScreen extends Component {
                     <Form>
                         <Item stackedLabel>
                             <Label>Serie Medidor</Label>
-                            <Input 
+                            <Input
+                                disabled 
                                 value={user.meter}
                             />
                         </Item>
                         <Item stackedLabel>
                             <Label>Marca Medidor</Label>
-                            <Input 
+                            <Input
+                                disabled 
                                 value={user.brand}
                             />
                         </Item>
                         <Item stackedLabel>
                             <Label>Código</Label>
                             <Input 
+                                disabled
                                 value={`${user.code}`}
                             />
                         </Item>
                         <Item stackedLabel>
                             <Label>Dirección</Label>
-                            <Input 
+                            <Input
+                                disabled
                                 value={user.address}
                             />
                         </Item>
                         <Item stackedLabel>
                             <Label>Nodo</Label>
-                            <Input />
+                            <Input 
+                                value={this.state.node}
+                                onChangeText={val => {
+                                    this.handleChangeNode(val)
+                                }}
+                                />
                         </Item>
                         <Item stackedLabel>
                             <Label>Ubicación</Label>
@@ -123,20 +203,35 @@ class UserStakeOutScreen extends Component {
                         </Item>
                         <Item stackedLabel>
                             <Label>Lectura Activa</Label>
-                            <Input />
+                            <Input 
+                                value={this.state.lecAct}
+                                onChangeText={value => {
+                                    this.handleChangeLecture(1,value)
+                                }}
+                                />
                         </Item>
                         <Item stackedLabel>
                             <Label>Foto Lectura Activa</Label>
-                            <CapturePhotoButton />
+                            <CapturePhotoButton handlePhoto={this.handlePhotoCapture} typePhoto={1}/>
                         </Item>
                         <Item stackedLabel>
                             <Label>Lectura Reactiva</Label>
-                            <CapturePhotoButton />
+                            <Input 
+                                value={this.state.lecRea}
+                                onChangeText={value => {
+                                    this.handleChangeLecture(2,value)
+                                }}
+                                />
+                        </Item>
+                        <Item stackedLabel>
+                            <Label>Foto Lectura Reactiva</Label>
+                            <CapturePhotoButton handlePhoto={this.handlePhotoCapture} typePhoto={2}/>
                         </Item>
                         <Item stackedLabel>
                             <Label>Guardar</Label>
                             <Button iconLeft full success
                                 style={styles.photoButton}
+                                onPress={this.uploadUser}
                                 >
                                 <Icon name='save' type='MaterialIcons'/>
                                 <Text style={{color: 'white'}}>Guardar</Text>
@@ -156,7 +251,8 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = state => ({
-    balance: state.balance 
+    balance: state.balance,
+    api: state.api
 })
 
 const mapDispatchToProps = dispatch => ({

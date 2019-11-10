@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import {Colors} from '../config'
 import PageHeader from '../components/PageHeader'
+import AddNode from '../components/AddNode'
 
 
 class HomeScreen extends Component {
@@ -31,6 +32,7 @@ class HomeScreen extends Component {
                 <View style={HomeStyles.mainView}>
                     <PageHeader text='Inicio'/>
                     <Text>{JSON.stringify(this.props.data)}</Text>
+                    <AddNode/>
                 </View>
             </ScrollView>
         )

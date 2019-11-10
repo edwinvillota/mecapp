@@ -28,6 +28,8 @@ class CapturePhotoButton extends Component {
         super()
         this.state = {
             uri: false,
+            data: false,
+            path: false,
             modalVisible: false
         }
     }
@@ -47,13 +49,23 @@ class CapturePhotoButton extends Component {
 
         ImagePicker.launchCamera(options, (response) => {
             if(!response.didCancel){
+                const newPhoto = {
+                    uri: response.uri,
+                    path: response.path,
+                    type: this.props.typePhoto
+                }
+                this.returnImageData(newPhoto)
                 this.setState({
-                    uri: response.uri
+                    uri: response.uri,
+                    path: response.path
                 })
             }
         })
-
     }
+
+    returnImageData = (newPhoto) => {
+        this.props.handlePhoto(newPhoto)
+    }   
 
     render(){
         return(

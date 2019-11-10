@@ -4,6 +4,7 @@ import authenticationReducer from './authenticationReducer'
 import boxstateReducer from './boxstateReducer'
 import apiReducer from './apiReducer'
 import balanceReducer from './balanceReducer'
+import transformActivitiesReducer from './transformActivitiesReducer'
 
 
 export default combineReducers({
@@ -11,5 +12,6 @@ export default combineReducers({
     authentication: authenticationReducer,
     boxstate: boxstateReducer,
     api: apiReducer,
-    balance: balanceReducer
+    balance: balanceReducer,
+    transformActivities: transformActivitiesReducer
 })
