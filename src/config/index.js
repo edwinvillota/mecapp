@@ -7,7 +7,8 @@ export const Colors = {
     primary: '#FF6A52',
     inactive: '#959FA7',
     text: '#FFFFFF',
-    icon: 'white'
+    icon: 'white',
+    delete: '#E83B43'
 }
 
 export const dirHome = Platform.select({

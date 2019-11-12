@@ -27,6 +27,7 @@ class CaptureLocationButton extends Component {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude
                 })
+                this.props.handleLocation(position)
             },
             error => {
                 alert(error.message)

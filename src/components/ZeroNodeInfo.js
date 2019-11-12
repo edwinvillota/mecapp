@@ -17,11 +17,22 @@ class ZeroNodeInfo extends Component {
         super(props)
         this.state = {
             isNodeZero: false,
-            haveMacro: false 
+            haveMacro: false,
+            macro: '',
+            transformerPhoto: false
         }
     }
 
+    handleUpdateInfo = (newZeroInfo) => {
+        this.props.handleChangeZeroInfo(newZeroInfo)
+    }
+
     render(){
+        const {
+            haveMacro,
+            macro,
+            transformerPhoto
+        } = this.props.ZeroInfo
         return(
             <Content>
                 <Text style={styles.header}>Información Transformador</Text>
@@ -29,21 +40,30 @@ class ZeroNodeInfo extends Component {
                     <Label>Tiene Macromedidor</Label>
                     <CheckBox 
                         color={Colors.primary}
-                        checked={this.state.haveMacro}
+                        checked={haveMacro}
                         onPress={(e) => {
-                            this.setState({
-                                haveMacro: !this.state.haveMacro
+                            this.handleUpdateInfo({
+                                type: 'HAVE_MACRO',
+                                value: !haveMacro
                             })
                         }}
                         />
                 </Item>
                 {
-                    this.state.haveMacro
+                    haveMacro
                     ? (
                         <Content>
                         <Item stackedLabel>
                             <Label>Serie Macromedidor</Label>
-                            <Input />
+                            <Input 
+                                value={macro}
+                                onChangeText={(value) => {
+                                    this.handleUpdateInfo({
+                                        type: 'MACRO',
+                                        value: value
+                                    })
+                                }}
+                                />
                         </Item>
 
                         </Content>
@@ -54,8 +74,11 @@ class ZeroNodeInfo extends Component {
                 }
                 <Item stackedLabel>
                     <Label>Foto Transformador</Label>
-                    <CapturePhotoButton handlePhoto={() => {
-                        console.log('Foto Tomada')
+                    <CapturePhotoButton handlePhoto={(newPhoto) => {
+                        this.handleUpdateInfo({
+                            type: 'TRANSFORMER_PHOTO',
+                            photo: newPhoto
+                        })
                     }}/>
                 </Item>
 
