@@ -7,7 +7,9 @@ import {
 } from 'react-native'
 import { Header, Left, Button, Title, Body, Icon, Text, Tabs, Tab, TabHeading, Spinner, ActionSheet} from 'native-base'
 import { Colors } from '../config'
-import { getTransformerData, setTransformerRequestStatus } from '../actions'
+import { getTransformerData, setTransformerRequestStatus, 
+         addTransformerStakeOut, getTransformerStakeOuts
+} from '../actions'
 
 class TransformerViewScreen extends Component {
     constructor(props) {
@@ -20,6 +22,13 @@ class TransformerViewScreen extends Component {
     static navigationOptions = {
         title: 'Transformador',
         drawerLabel: () => (null)
+    }
+
+    handleStakeOut = () => {
+        this.props.navigation.navigate('StakeOut',{
+            transformer_id: this.props.navigation.getParam('transformer_id'),
+            structure: this.props.navigation.getParam('structure')
+        })
     }
 
     render () {
@@ -60,10 +69,7 @@ class TransformerViewScreen extends Component {
                                                 buttonIndex => {
                                                     switch (buttonIndex) {
                                                         case 0:
-                                                            this.props.navigation.navigate('StakeOut',{
-                                                                transformer_id: this.props.navigation.getParam('transformer_id'),
-                                                                structure: this.props.navigation.getParam('structure')
-                                                            })
+                                                            this.handleStakeOut()
                                                             break;
                                                     
                                                         default:
@@ -103,7 +109,8 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = state => ({
-    balance: state.balance
+    balance: state.balance,
+    transformActivities: state.transformActivities
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -112,6 +119,12 @@ const mapDispatchToProps = dispatch => ({
     },
     setTransformerRequestStatus: (newStatus) => {
         dispatch(setTransformerRequestStatus(newStatus))
+    },
+    addTransformerStakeOut: (transformer_id) => {
+        dispatch(addTransformerStakeOut(transformer_id))
+    },
+    getTransformerStakeOuts: (transformer_id) => {
+        dispatch(getTransformerStakeOuts(transformer_id))
     }
 })
 

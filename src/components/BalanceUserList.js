@@ -3,29 +3,51 @@ import { connect } from 'react-redux'
 import {
     StyleSheet,
     View,
-    TouchableOpacity
+    TouchableOpacity,
 } from 'react-native'
 import { Colors } from '../config'
-import { List, ListItem, Text, Item, Button, Icon, Input, Content, Container } from 'native-base'
+import { List, ListItem, Text, Container, Header, Item, Button, Input, Icon, TabHeading } from 'native-base'
+import { ScrollView } from 'react-native-gesture-handler'
 
 class BalanceUserList extends Component {
     constructor(props)  {
         super(props)
         this.state = {
-            
+            serial: '',
+            users: this.props.balance.transformer_data.users,
+            filterUsers: this.props.balance.transformer_data.users
         }
     }
 
+    handleChangeSerial = (newSerial) => {
+        this.setState({
+            serial: newSerial
+        })
+        this.filterUsers(newSerial)
+    }
+
+    filterUsers = (serial) => {
+        const regExp =  new RegExp("(" + serial + ")",'g')
+        const users = this.state.users
+        const filterUsers = users.filter(u => regExp.test(u.meter))
+        this.setState({
+            filterUsers: filterUsers
+        })
+    }
+
+    
+
     render () {
-        const { balance } = this.props
-        const users = balance.transformer_data.users
-        const userRows = users.map((u, i) => (
+        const { filterUsers } = this.state
+        const userRows = filterUsers.map((u, i) => (
             <ListItem key={i}>
                 <TouchableOpacity style={styles.touchableOpacity}
                     onPress={() => {
+                        this.props.handleCloseModal()
                         this.props.navigation.navigate('UserStakeOut', {
                             transformer_id: this.props.navigation.getParam('transformer_id'),
                             structure: this.props.navigation.getParam('structure'),
+                            node: this.props.node_id,
                             user: u
                         })
                     }}
@@ -36,11 +58,31 @@ class BalanceUserList extends Component {
         ))
 
         return (
-            <Content>
-                <List>
-                    {userRows}
-                </List>
-            </Content>
+            <Container>
+                <Header searchBar rounded
+                    style={{backgroundColor: Colors.background}}
+                    androidStatusBarColor='black'
+                    >
+                    <Item>
+                        <Icon name='search'/>
+                        <Input placeholder='Buscar Medidor' 
+                            value={this.state.serial}
+                            keyboardType="number-pad"
+                            onChangeText={text => {
+                                this.handleChangeSerial(text)
+                            }}/>
+                        <Button icon
+                            onPress={this.props.handleCloseModal}>
+                            <Icon name='close'/>
+                        </Button>
+                    </Item>
+                </Header>
+                <ScrollView>
+                    <List>
+                        {userRows}
+                    </List>
+                </ScrollView>
+            </Container>
         )
     }
 }

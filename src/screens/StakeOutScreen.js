@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import {
     View,
-    Text
+    ScrollView
 } from 'react-native'
 import { Colors } from '../config'
 import { Header, Left, Button, Icon, Body, Title, H3, Accordion} from 'native-base'
 import { BarChart, Grid } from 'react-native-svg-charts'
-import BalanceUserList from '../components/BalanceUserList'
-import { Dimensions } from 'react-native'
+import AddNode from '../components/AddNode'
+import { addTransformerStakeOut, addStakeoutNode, delStakeoutNode} from '../actions'
 
-export default class StakeOutScreen extends Component {
+class StakeOutScreen extends Component {
     constructor(props) {
         super(props)
     }
@@ -19,7 +20,29 @@ export default class StakeOutScreen extends Component {
         drawerLabel: () => (null)
     }
 
+    componentDidMount() {
+        const id = this.props.navigation.getParam('transformer_id')
+        this.props.addTransformerStakeOut(id)
+    }
+
+
+    handleStakeOutNode = (nodeNumber) => {
+        this.props.navigation.navigate('NodeStakeOut', {
+            node_id: nodeNumber
+        })
+    }
+
+    handleAddNode = (newNode) => {
+        this.props.addStakeoutNode(newNode)
+    }
+
+    handleRemoveNode = (node) => {
+        this.props.delStakeoutNode(node)
+    }
+
     render () {
+        const stakeout = this.props.transformActivities.actualStakeOut
+        console.log(this.props.transformActivities)
         return (
             <View style={{flex: 1}}>
                 <Header 
@@ -38,25 +61,42 @@ export default class StakeOutScreen extends Component {
                         <Title>Levantamiento</Title>
                     </Body>
                 </Header>
+                <ScrollView>
                 <BarChart
                     style={{ height: 200}}
                     data={[30,52]}
-                    svg={{ fill: 'rgba(248,157,70,.5)' }}
+                    svg={{ fill: 'rgba(248,157,70,.2)', stroke: 'rgba(248,157,70,1)'}}
                     contentInset={{top: 30, bottom: 30}}
                     >
                     <Grid/>
                 </BarChart>
-                <H3 style={{color: 'white', backgroundColor: 'black', paddingVertical: 10}}>Crear Nodo</H3>
-                <Button info>
-                    <Text style={{color: 'white'}}>Crear Nodo</Text>
-                </Button>
-                <Button success>
-                    <Text style={{color: 'white'}}>Ver Nodos</Text>
-                </Button>
-
-                {/* <BalanceUserList navigation={this.props.navigation}/> */}
+                <AddNode 
+                    handleStakeOutNode={this.handleStakeOutNode}
+                    handleAddNode={this.handleAddNode}
+                    handleRemoveNode={this.handleRemoveNode}
+                    nodes={this.props.transformActivities.actualStakeOut.nodes || []}
+                    />
+                </ScrollView>
             </View>
         )
     }
 }
+
+const mapStateToProps = state => ({
+    transformActivities: state.transformActivities
+})
+
+const mapDispatchToProps = dispatch => ({
+    addTransformerStakeOut: (transformer_id) => {
+        dispatch(addTransformerStakeOut(transformer_id))
+    },
+    addStakeoutNode: (newNode) => {
+        dispatch(addStakeoutNode(newNode))
+    },
+    delStakeoutNode: (node) => {
+        dispatch(delStakeoutNode(node))
+    }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(StakeOutScreen)
 

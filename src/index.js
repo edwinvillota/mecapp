@@ -13,6 +13,7 @@ import TransformerScreen from './screens/TransformerScreen'
 import BalancesScreen from './screens/BalancesScreen'
 import TransformerViewScreen from './screens/TransformerViewScreen'
 import StakeOutScreen from './screens/StakeOutScreen'
+import NodeStakeOutScreen from './screens/NodeStakeOutScreen'
 import UserStakeOutScreen from './screens/UserStakeOutScreen'
 import ConfigScreen from './screens/ConfigScreen'
 
@@ -28,13 +29,14 @@ const AppNavigator = createDrawerNavigator(
         Transformers: TransformerScreen,
         Balances: BalancesScreen,
         StakeOut: StakeOutScreen,
+        NodeStakeOut: NodeStakeOutScreen,
         UserStakeOut: UserStakeOutScreen,
         Config: ConfigScreen,
         About: AboutScreen,
         Logout: LogoutScreen
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Transformers',
         drawerType: 'slide',
         drawerBackgroundColor: Colors.background,
         contentOptions: {

@@ -2,12 +2,14 @@ import {OPEN_SIDEBAR, CLOSE_SIDEBAR} from '../types'
 import {LOGIN_REQUEST, LOGIN_FAILURE, LOGIN_SUCCESS, LOGOUT,
         SET_SEARCH_TYPE, SET_DEVICE_NUMBER,
         PREV_INFO_REQUEST, PREV_INFO_FAILURE, PREV_INFO_SUCCESS,
-        BOX_INFO_SUCCESS, GET_ALL_TRANSFORMERS, GET_TRANSFORMER_DATA, SET_TRANSFORMER_REQUEST_STATUS
+        BOX_INFO_SUCCESS, GET_ALL_TRANSFORMERS, GET_TRANSFORMER_DATA, SET_TRANSFORMER_REQUEST_STATUS,
+        ADD_TRANSFORMER_STAKEOUT, GET_TRANSFORMER_STAKEOUTS, DEL_TRANSFORMER_STAKEOUT, LOAD_TRANSFORMER_STAKEOUT,
+        ADD_STAKEOUT_NODE, DEL_STAKEOUT_NODE, ADD_STAKEOUT_USER
     } from '../types'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
 import {Toast, ActionSheet} from 'native-base'
-import {AsyncStorage} from 'react-native'
+import {AsyncStorage, Alert} from 'react-native'
 
 // Sidebar Actions
 export const openSideBar = () => {
@@ -237,3 +239,84 @@ export const getTransformerData = (id) => {
     }
 }
 
+// Transform Activities Actions
+export const getTransformerStakeOuts = (transformer_id) => {
+    return {
+        type: GET_TRANSFORMER_STAKEOUTS,
+        transformer_id
+    }
+}
+
+export const addTransformerStakeOut = (transformer_id) => {
+    return (dispatch, getState) => {
+        const { stakeouts } = getState().transformActivities
+
+        if (stakeouts.find(s => s.transformer_id = transformer_id)) {
+            Alert.alert(
+                'Confirmar',
+                'El transformador ya tiene un levantamiento en progreso',
+                [
+                    {
+                        text: 'Eliminar',
+                        onPress: () => {
+                            dispatch(delTransformerStakeOut(transformer_id))
+                            dispatch(addTransformerStakeOut(transformer_id))
+                        }
+                    },
+                    {
+                        text: 'Editar',
+                        onPress: () => {
+                            //dispatch(loadTransformerStakeOut(transformer_id))
+                        }
+                    }
+                ],
+                {cancelable: false}
+            )
+        } else {
+            alert('Creado nuevo levantamiento')
+            dispatch(createTransformerStakeOut(transformer_id))
+        }
+    }
+}
+
+export const createTransformerStakeOut = (transformer_id) => {
+    return {
+        type: ADD_TRANSFORMER_STAKEOUT,
+        transformer_id
+    }
+}
+
+export const delTransformerStakeOut = (transformer_id) => {
+    return {
+        type: DEL_TRANSFORMER_STAKEOUT,
+        transformer_id
+    }
+}
+
+export const loadTransformerStakeOut = (transformer_id) => {
+    return {
+        type: LOAD_TRANSFORMER_STAKEOUT,
+        transformer_id
+    }
+}
+// Nodos
+export const addStakeoutNode = (newNode) => {
+    return {
+        type: ADD_STAKEOUT_NODE,
+        newNode
+    }
+}
+
+export const delStakeoutNode = (nodeNumber) => {
+    return {
+        type: DEL_STAKEOUT_NODE,
+        nodeNumber
+    }
+}
+// Usuarios 
+export const addStakeoutUser = (newUser) => {
+    return {
+        type: ADD_STAKEOUT_USER,
+        newUser
+    }
+}

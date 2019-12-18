@@ -23,6 +23,7 @@ import {
 } from 'native-base'
 import { Colors } from '../config'
 import CapturePhotoButton from '../components/CapturePhotoButton'
+import { addStakeoutUser } from '../actions'
 
 class UserStakeOutScreen extends Component {
     constructor(props) {
@@ -35,8 +36,7 @@ class UserStakeOutScreen extends Component {
             lecAct: null,
             lecActPhoto: false,
             lecRea: null,
-            lecReaPhoto: false,
-            node: null
+            lecReaPhoto: false
         }
     }
 
@@ -49,27 +49,24 @@ class UserStakeOutScreen extends Component {
         this.getGeolocation()
     }
 
-    uploadUser = () => {
-        const { api } = this.props
-        const { user, lecActPhoto, lecReaPhoto, ubicacion } = this.state
-        const endpoint = `${api.url}/transformer/${user.transformer}/addUser`
-        let formData = new FormData()
+    saveUser = () => {
+        const { user, lecActPhoto, lecReaPhoto, ubicacion, lecAct, lecRea } = this.state
+        const newUser = {
+            info: user,
+            lecAct,
+            lecRea,
+            lecActPhoto,
+            lecReaPhoto,
+            ubicacion,
+            node: this.props.navigation.getParam('node')
+        }
 
-        // Add user information
-        formData.append('user', JSON.stringify(user))
-        formData.append('location', JSON.stringify(ubicacion.coords))
-        formData.append('node', this.state.node)
-        formData.append('lecAct', this.state.lecAct)
-        formData.append('lecRea', this.state.lecRea)
-        formData.append(`Activa`, {uri: lecActPhoto.uri, name: `${user.meter}-stakeout-activeLec`, type: 'image/jpeg'})
-        formData.append(`Reactiva`, {uri: lecReaPhoto.uri, name: `${user.meter}-stakeout-reactiveLec`, type: 'image/jpeg'})
-
-        axios.post(endpoint, formData)
-        .then(response => {
-            console.log(response)
-        })
-        .catch(err =>   {
-            console.log(err)
+        this.props.addStakeoutUser(newUser)
+        
+        this.props.navigation.navigate('NodeStakeOut', {
+            transformer_id: this.props.navigation.getParam('transformer_id'),
+            structure: this.props.navigation.getParam('structure'),
+            node_id: this.props.navigation.getParam('node')
         })
     }
 
@@ -136,9 +133,10 @@ class UserStakeOutScreen extends Component {
                     <Left>
                         <Button transparent
                             onPress={ () => {
-                                this.props.navigation.navigate('StakeOut', {
+                                this.props.navigation.navigate('NodeStakeOut', {
                                     transformer_id: this.props.navigation.getParam('transformer_id'),
-                                    structure: this.props.navigation.getParam('structure')
+                                    structure: this.props.navigation.getParam('structure'),
+                                    node_id: this.props.navigation.getParam('node')
                                 })
                             }}
                             >
@@ -182,7 +180,8 @@ class UserStakeOutScreen extends Component {
                         <Item stackedLabel>
                             <Label>Nodo</Label>
                             <Input 
-                                value={this.state.node}
+                                disabled
+                                value={`${this.props.navigation.getParam('node')}`}
                                 onChangeText={val => {
                                     this.handleChangeNode(val)
                                 }}
@@ -231,7 +230,7 @@ class UserStakeOutScreen extends Component {
                             <Label>Guardar</Label>
                             <Button iconLeft full success
                                 style={styles.photoButton}
-                                onPress={this.uploadUser}
+                                onPress={this.saveUser}
                                 >
                                 <Icon name='save' type='MaterialIcons'/>
                                 <Text style={{color: 'white'}}>Guardar</Text>
@@ -256,7 +255,9 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-
+    addStakeoutUser: (newUser) => {
+        dispatch(addStakeoutUser(newUser))
+    }
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserStakeOutScreen)

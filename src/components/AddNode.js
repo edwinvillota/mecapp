@@ -15,27 +15,25 @@ class AddNode extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            nodes: [],
             addModalVisible: false,
             newNumber: 0
         }
     }
 
     handleAddNode = (newNode) => {
-        const { nodes } = this.state
-        nodes.push(newNode)
+        this.props.handleAddNode(newNode)
     }
 
     handleRemoveNode = (nodeNumber) => {
-        const { nodes } = this.state
-        const newNodes = nodes.filter(n => n.number !== nodeNumber)
-        this.setState({
-            nodes: newNodes
-        })
+        this.props.handleRemoveNode(nodeNumber)
+    }
+
+    handleStakeOutNode = (nodeNumber) => {
+        this.props.handleStakeOutNode(nodeNumber)
     }
 
     handlePressButton = () => {
-        const {nodes} = this.state
+        const {nodes} = this.props
         let newNumber
         if(nodes.length) {
             newNumber = nodes.length
@@ -49,7 +47,7 @@ class AddNode extends Component {
     }
 
     nodesToAccordionData = () => {
-        const {nodes} = this.state
+        const {nodes} = this.props
         if (nodes.length) {
             const accordionNodesData = nodes.map((n, i) => (
                 {title: n.number, parentNode: n.parentNode, coords: n.coords, zeroInfo: n.zeroInfo}
@@ -64,7 +62,7 @@ class AddNode extends Component {
                 style={{
                     borderStyle: 'solid',
                     borderColor: Colors.background,
-                    borderWidth: 2
+                    borderWidth: 1
                 }}
                 >
                 <Text style={styles.propsTitle}>Nodo Padre</Text>
@@ -125,7 +123,7 @@ class AddNode extends Component {
             }}>
                 <Button icon={true} transparent style={styles.barButton} small
                     onPress={() => {
-                        alert('Levantar Nodo')
+                        this.handleStakeOutNode(node.title)
                     }}
                     >
                     <Icon name='tasks' type='FontAwesome' style={{color: Colors.secondary, fontSize: 20, marginRight: 0, marginLeft: 0}}/>
@@ -197,7 +195,7 @@ class AddNode extends Component {
 
 const styles = StyleSheet.create({
     mainWrapper: {
-        padding: 10
+        padding: 0
     },
     header: {
         width: '100%',
