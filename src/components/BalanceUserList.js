@@ -41,7 +41,7 @@ class BalanceUserList extends Component {
         const { filterUsers } = this.state
         const userRows = filterUsers.map((u, i) => (
             <ListItem key={i}>
-                <TouchableOpacity style={styles.touchableOpacity}
+                <TouchableOpacity style={styles.touchableOpacity} disabled={u.stakeout}
                     onPress={() => {
                         this.props.handleCloseModal()
                         this.props.navigation.navigate('UserStakeOut', {
@@ -52,7 +52,7 @@ class BalanceUserList extends Component {
                         })
                     }}
                     >
-                    <Text style={styles.textListItem}>{`${u.brand} - ${u.meter}`}</Text>
+                    <Text style={u.stakeout ? styles.upUser : null}>{`${u.brand} - ${u.meter}`}</Text>
                 </TouchableOpacity>
             </ListItem>
         ))
@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
     touchableOpacity: {
         flex: 1
     },
-    textListItem: {
-        flex: 1
+    upUser: {
+        color: 'green'
     }
 })
 

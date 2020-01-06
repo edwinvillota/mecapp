@@ -1,9 +1,9 @@
-import {OPEN_SIDEBAR, CLOSE_SIDEBAR} from '../types'
+import {OPEN_SIDEBAR, CLOSE_SIDEBAR, DEL_STAKEOUT_USER, SET_TRANSFORMER_USER_STATUS} from '../types'
 import {LOGIN_REQUEST, LOGIN_FAILURE, LOGIN_SUCCESS, LOGOUT,
         SET_SEARCH_TYPE, SET_DEVICE_NUMBER,
         PREV_INFO_REQUEST, PREV_INFO_FAILURE, PREV_INFO_SUCCESS,
         BOX_INFO_SUCCESS, GET_ALL_TRANSFORMERS, GET_TRANSFORMER_DATA, SET_TRANSFORMER_REQUEST_STATUS,
-        ADD_TRANSFORMER_STAKEOUT, GET_TRANSFORMER_STAKEOUTS, DEL_TRANSFORMER_STAKEOUT, LOAD_TRANSFORMER_STAKEOUT,
+        ADD_TRANSFORMER_STAKEOUT, GET_TRANSFORMER_STAKEOUTS, DEL_TRANSFORMER_STAKEOUT, LOAD_TRANSFORMER_STAKEOUT, UPDATE_TRANSFORMER_STAKEOUT,
         ADD_STAKEOUT_NODE, DEL_STAKEOUT_NODE, ADD_STAKEOUT_USER
     } from '../types'
 import axios from 'axios'
@@ -239,6 +239,27 @@ export const getTransformerData = (id) => {
     }
 }
 
+export const setTransformerUserStatus = (meter, newStatus) => {
+    return (dispatch, getState) => {
+        const { users } = getState().balance.transformer_data
+        const newUsers = users.map(u => {
+            if (u.meter === meter) {
+                u.stakeout = newStatus
+            }
+            return u
+        })
+
+        dispatch(updateBalanceUsers(newUsers))
+    }
+}
+
+export const updateBalanceUsers = (newUsers) => {
+    return {
+        type: SET_TRANSFORMER_USER_STATUS,
+        newUsers
+    }
+}
+
 // Transform Activities Actions
 export const getTransformerStakeOuts = (transformer_id) => {
     return {
@@ -250,8 +271,13 @@ export const getTransformerStakeOuts = (transformer_id) => {
 export const addTransformerStakeOut = (transformer_id) => {
     return (dispatch, getState) => {
         const { stakeouts } = getState().transformActivities
-
-        if (stakeouts.find(s => s.transformer_id = transformer_id)) {
+        let exists = false 
+        stakeouts.forEach(s => {
+            if (s.transformer_id === transformer_id) {
+                exists = true
+            }
+        })
+        if (exists) {
             Alert.alert(
                 'Confirmar',
                 'El transformador ya tiene un levantamiento en progreso',
@@ -266,7 +292,7 @@ export const addTransformerStakeOut = (transformer_id) => {
                     {
                         text: 'Editar',
                         onPress: () => {
-                            //dispatch(loadTransformerStakeOut(transformer_id))
+                            dispatch(loadTransformerStakeOut(transformer_id))
                         }
                     }
                 ],
@@ -286,10 +312,43 @@ export const createTransformerStakeOut = (transformer_id) => {
     }
 }
 
+export const updateTransformerStakeOut = (transformer_id) => {
+    return {
+        type: UPDATE_TRANSFORMER_STAKEOUT,
+        transformer_id
+    }
+}
+
 export const delTransformerStakeOut = (transformer_id) => {
     return {
         type: DEL_TRANSFORMER_STAKEOUT,
         transformer_id
+    }
+}
+
+export const chargueTransformerStakeOut = (transformer_id) => {
+    // Search stakeouts pending
+    return (dispatch, getState) => {
+        const { stakeouts } = getState().transformActivities
+
+        console.log('Levantamientos Disponibles')
+        console.log(stakeouts)
+        let exists = false 
+        stakeouts.forEach(s => {
+            if (s.transformer_id === transformer_id) {
+                exists = true
+            }
+        })
+        console.log('Existe un levantamiento previo')
+        console.log(exists)
+
+        if(exists){
+            console.log('Cargando Ultimo levantamiento')
+            dispatch(loadTransformerStakeOut(transformer_id))
+        } else {
+            console.log('Creando uno nuevo')
+            dispatch(createTransformerStakeOut(transformer_id))
+        }
     }
 }
 
@@ -299,6 +358,7 @@ export const loadTransformerStakeOut = (transformer_id) => {
         transformer_id
     }
 }
+
 // Nodos
 export const addStakeoutNode = (newNode) => {
     return {
@@ -320,3 +380,10 @@ export const addStakeoutUser = (newUser) => {
         newUser
     }
 }
+
+export const delStakeoutUser = (user) => {
+    return {
+        type: DEL_STAKEOUT_USER,
+        user
+    }
+} 

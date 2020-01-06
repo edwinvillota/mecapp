@@ -109,13 +109,15 @@ export default class NodeStakeOutScreen extends Component {
                     </View>
                     <View style={{flex: 1, padding: 10}}>
                         <Tabs>
-                            <Tab heading='Usuarios' tabStyle={{backgroundColor: '#333333'}}>
-                                <NodeUserList/>
+                            <Tab heading='Usuarios' tabStyle={{backgroundColor: '#333333'}} textStyle={{color: 'white'}} activeTabStyle={{backgroundColor: '#4682B4'}}>
+                                <NodeUserList
+                                    node={this.props.navigation.getParam('node_id')}
+                                    />
                             </Tab>
-                            <Tab heading='Otras Cargas' tabStyle={{backgroundColor: '#333333'}}>
+                            <Tab heading='Otras Cargas' tabStyle={{backgroundColor: '#333333'}} textStyle={{color: 'white'}} activeTabStyle={{backgroundColor: '#4682B4'}}>
                                 <Text>Otras Cargas</Text>
                             </Tab>
-                            <Tab heading='Ilegales' tabStyle={{backgroundColor: '#333333'}}>
+                            <Tab heading='Ilegales' tabStyle={{backgroundColor: '#333333'}} textStyle={{color: 'white'}} activeTabStyle={{backgroundColor: '#4682B4'}}>
                                 <Text>Ilegales</Text>
                             </Tab>
                         </Tabs>

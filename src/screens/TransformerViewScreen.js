@@ -8,7 +8,7 @@ import {
 import { Header, Left, Button, Title, Body, Icon, Text, Tabs, Tab, TabHeading, Spinner, ActionSheet} from 'native-base'
 import { Colors } from '../config'
 import { getTransformerData, setTransformerRequestStatus, 
-         addTransformerStakeOut, getTransformerStakeOuts
+         getTransformerStakeOuts
 } from '../actions'
 
 class TransformerViewScreen extends Component {
@@ -119,9 +119,6 @@ const mapDispatchToProps = dispatch => ({
     },
     setTransformerRequestStatus: (newStatus) => {
         dispatch(setTransformerRequestStatus(newStatus))
-    },
-    addTransformerStakeOut: (transformer_id) => {
-        dispatch(addTransformerStakeOut(transformer_id))
     },
     getTransformerStakeOuts: (transformer_id) => {
         dispatch(getTransformerStakeOuts(transformer_id))

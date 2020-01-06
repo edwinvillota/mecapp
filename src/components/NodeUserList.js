@@ -3,10 +3,19 @@ import { connect } from 'react-redux'
 import {
     StyleSheet,
     View,
-    TouchableOpacity
+    TouchableOpacity,
 } from 'react-native'
-import {Text} from 'native-base'
-import { Colors } from '../config'
+import { delStakeoutUser } from '../actions'
+import { 
+    Text,
+    List,
+    ListItem,
+    Right,
+    Icon,
+    Left,
+    Button,
+    Body
+} from 'native-base'
 
 
 class NodeUserList extends Component {
@@ -15,14 +24,27 @@ class NodeUserList extends Component {
     }
 
     render() {
-        const users = this.props.transformActivities.actualStakeOut.users
+        const node = this.props.node
+        const users = this.props.transformActivities.actualStakeOut.users.filter(u => u.node === node) || []
         const list = users.map((u, i) => (
-        <Text key={i}>{`Nodo: ${u.node} --> ${u.info.brand}-${u.info.meter}`}</Text>
+        <ListItem key={i} icon>
+            <Left>
+                <Button style={{backgroundColor: 'coral'}}
+                    onPress={() => {this.props.delStakeoutUser(u)}}
+                    >
+                    <Icon active name='delete' type='AntDesign' />
+                </Button>
+            </Left>
+            <Body>
+                <Text>{`${u.info.brand}-${u.info.meter}`}</Text>
+            </Body>
+        </ListItem>
         ))
         return (
             <View style={{flex: 1}}>
-                <Text>Listado de usuarios levantados...</Text>
-                {list}
+                <List>
+                    {list}
+                </List>
             </View>
         )
     }
@@ -37,7 +59,9 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-
+    delStakeoutUser: (user) => {
+        dispatch(delStakeoutUser(user))
+    }
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NodeUserList)

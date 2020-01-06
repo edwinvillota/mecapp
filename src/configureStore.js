@@ -9,13 +9,13 @@ const persistConfig = {
     storage: AsyncStorage,
     whitelist: [
         'boxstate',
-        'transformActivities'
+        'transformActivities',
+        'balance'
     ],
     blacklist: [
         'authentication',
         'sidebar',
-        'api',
-        'balance'
+        'api'
     ]
 }
 

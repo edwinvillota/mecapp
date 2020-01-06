@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getAllTransformers, getTransformerData } from '../actions'
+import { getAllTransformers, getTransformerData, chargueTransformerStakeOut } from '../actions'
 import {
     AppRegistry,
     StyleSheet,
@@ -24,8 +24,7 @@ class TransformerViewer extends Component {
         let items = false
         if (transformers.length) {
             items = transformers.map((t, i) => (
-                <ListItem button={true} key={i}
-                    >
+                <ListItem button={true} key={i}>
                     <TouchableOpacity 
                         style={{flex: 1, flexDirection: 'row'}}
                         onPress={() => {
@@ -62,7 +61,8 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = state => ({
-    balance: state.balance
+    balance: state.balance,
+    transformActivities: state.transformActivities
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -71,6 +71,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getTransformerData: (id) => {
         dispatch(getTransformerData(id))
+    },
+    chargueTransformerStakeOut: (transformer_id) => {
+        dispatch(chargueTransformerStakeOut(transformer_id))
     }
 })
 

@@ -5,10 +5,10 @@ import {
     ScrollView
 } from 'react-native'
 import { Colors } from '../config'
-import { Header, Left, Button, Icon, Body, Title, H3, Accordion} from 'native-base'
+import { Header, Left, Button, Icon, Body, Title, Text} from 'native-base'
 import { BarChart, Grid } from 'react-native-svg-charts'
 import AddNode from '../components/AddNode'
-import { addTransformerStakeOut, addStakeoutNode, delStakeoutNode} from '../actions'
+import { addTransformerStakeOut, addStakeoutNode, delStakeoutNode, updateTransformerStakeOut, chargueTransformerStakeOut} from '../actions'
 
 class StakeOutScreen extends Component {
     constructor(props) {
@@ -19,12 +19,6 @@ class StakeOutScreen extends Component {
         title: 'Nuevo Levantamiento',
         drawerLabel: () => (null)
     }
-
-    componentDidMount() {
-        const id = this.props.navigation.getParam('transformer_id')
-        this.props.addTransformerStakeOut(id)
-    }
-
 
     handleStakeOutNode = (nodeNumber) => {
         this.props.navigation.navigate('NodeStakeOut', {
@@ -42,7 +36,7 @@ class StakeOutScreen extends Component {
 
     render () {
         const stakeout = this.props.transformActivities.actualStakeOut
-        console.log(this.props.transformActivities)
+        
         return (
             <View style={{flex: 1}}>
                 <Header 
@@ -74,8 +68,29 @@ class StakeOutScreen extends Component {
                     handleStakeOutNode={this.handleStakeOutNode}
                     handleAddNode={this.handleAddNode}
                     handleRemoveNode={this.handleRemoveNode}
-                    nodes={this.props.transformActivities.actualStakeOut.nodes || []}
+                    nodes={stakeout.nodes || []}
                     />
+                <Button
+                    full
+                    success
+                    onPress={() => {
+                        this.props.updateTransformerStakeOut(this.props.navigation.getParam('transformer_id'))
+                    }}
+                    >
+                    <Icon name='save'/>
+                    <Text>Guardar</Text>
+                </Button>
+                <Button
+                    full
+                    primary
+                    onPress={() => {
+                        const id = this.props.navigation.getParam('transformer_id')
+                        this.props.chargueTransformerStakeOut(id)
+                    }}
+                    >
+                    <Icon type='MaterialIcons' name='get-app'/>
+                    <Text>Cargar</Text>
+                </Button>
                 </ScrollView>
             </View>
         )
@@ -95,6 +110,12 @@ const mapDispatchToProps = dispatch => ({
     },
     delStakeoutNode: (node) => {
         dispatch(delStakeoutNode(node))
+    },
+    updateTransformerStakeOut: (transformer_id) => {
+        dispatch(updateTransformerStakeOut(transformer_id))
+    },
+    chargueTransformerStakeOut: (transformer_id) => {
+        dispatch(chargueTransformerStakeOut(transformer_id))
     }
 })
 

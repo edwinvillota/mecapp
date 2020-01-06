@@ -23,13 +23,12 @@ import {
 } from 'native-base'
 import { Colors } from '../config'
 import CapturePhotoButton from '../components/CapturePhotoButton'
-import { addStakeoutUser } from '../actions'
+import { addStakeoutUser, setTransformerUserStatus } from '../actions'
 
 class UserStakeOutScreen extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            user: this.props.navigation.getParam('user'),
             ubicacion: {
                 coords: {}
             },
@@ -50,7 +49,8 @@ class UserStakeOutScreen extends Component {
     }
 
     saveUser = () => {
-        const { user, lecActPhoto, lecReaPhoto, ubicacion, lecAct, lecRea } = this.state
+        const user = this.props.navigation.getParam('user')
+        const { lecActPhoto, lecReaPhoto, ubicacion, lecAct, lecRea } = this.state
         const newUser = {
             info: user,
             lecAct,
@@ -60,9 +60,11 @@ class UserStakeOutScreen extends Component {
             ubicacion,
             node: this.props.navigation.getParam('node')
         }
-
+        this.props.setTransformerUserStatus(user.meter, true)
         this.props.addStakeoutUser(newUser)
-        
+    }
+
+    back = () => {
         this.props.navigation.navigate('NodeStakeOut', {
             transformer_id: this.props.navigation.getParam('transformer_id'),
             structure: this.props.navigation.getParam('structure'),
@@ -124,7 +126,7 @@ class UserStakeOutScreen extends Component {
     }
 
     render() {
-        const {user} = this.state
+        const user = this.props.navigation.getParam('user')
         return (
             <Container>
                 <Header 
@@ -236,6 +238,16 @@ class UserStakeOutScreen extends Component {
                                 <Text style={{color: 'white'}}>Guardar</Text>
                             </Button>
                         </Item>
+                        <Item stackedLabel>
+                            <Label>Regresar</Label>
+                            <Button iconLeft full warning
+                                style={styles.photoButton}
+                                onPress={this.back}
+                                >
+                                <Icon name='arrow-back' type='MaterialIcons'/>
+                                <Text style={{color: 'white'}}>Atras</Text>
+                            </Button>
+                        </Item>
                     </Form>
                 </Content>
             </Container>
@@ -257,6 +269,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     addStakeoutUser: (newUser) => {
         dispatch(addStakeoutUser(newUser))
+    },
+    setTransformerUserStatus: (meter, newStatus) => {
+        dispatch(setTransformerUserStatus(meter, newStatus))
     }
 })
 
