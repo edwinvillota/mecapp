@@ -24,12 +24,6 @@ class TransformerViewScreen extends Component {
         drawerLabel: () => (null)
     }
 
-    handleStakeOut = () => {
-        this.props.navigation.navigate('StakeOut',{
-            transformer_id: this.props.navigation.getParam('transformer_id'),
-            structure: this.props.navigation.getParam('structure')
-        })
-    }
 
     render () {
         let { transformer_info, users } = this.props.balance.transformer_data 
@@ -84,11 +78,6 @@ class TransformerViewScreen extends Component {
                                 </ScrollView>
                             </Tab>
                             <Tab heading={ <TabHeading style={styles.tabHeading}><Icon type='MaterialIcons' name='home'/></TabHeading> }>
-                                <ScrollView>
-                                {users.length ? users.map((u, i) => (
-                                    <Text key={i}>{u.meter}</Text>
-                                )) : null}
-                                </ScrollView>
                             </Tab>
                             <Tab heading={ <TabHeading style={styles.tabHeading}><Icon type='MaterialIcons' name='warning'/></TabHeading> }>
                             </Tab>
