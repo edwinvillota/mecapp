@@ -8,8 +8,15 @@ import {
 import { Header, Left, Button, Title, Body, Icon, Text, Tabs, Tab, TabHeading, Spinner, ActionSheet} from 'native-base'
 import { Colors } from '../config'
 import { getTransformerData, setTransformerRequestStatus, 
-         getTransformerStakeOuts
 } from '../actions'
+import {
+    downloadTransformerToLocal,
+    cleanLocalTransformerData,
+    getLocalTransformerUsers,
+    getLocalTransfomerDataStatus
+} from '../actions/transformActivitiesActions'
+import TransformerInfo from '../components/TransformerInfo'
+
 
 class TransformerViewScreen extends Component {
     constructor(props) {
@@ -24,11 +31,68 @@ class TransformerViewScreen extends Component {
         drawerLabel: () => (null)
     }
 
+    componentDidMount() {
+        const id = this.props.navigation.getParam('transformer_id')
+        const structure = this.props.navigation.getParam('structure')
+        this.props.getTransformerData(id)
+        this.props.getLocalTransfomerDataStatus(id, structure)
+    }
+
+    handleDownloadInfo = () => {
+        const t_data  = this.props.balance.transformer_data
+        this.props.downloadTransformerToLocal(t_data)
+    }
+
+    handleCleanLocalInfo = () => {
+        const t_info = this.props.balance.transformer_data.transformer_info
+        this.props.cleanLocalTransformerData(t_info._id, t_info.structure)   
+    }
+
+    handleGetTransformerUsers = () => {
+        const t_info = this.props.balance.transformer_data.transformer_info
+        this.props.getLocalTransformerUsers(t_info._id, t_info.structure)  
+    }
+
+    _renderDataStatus = () => {
+        const { local_transformer_data_status } = this.props.transformActivities
+        console.log(local_transformer_data_status)
+        switch (local_transformer_data_status) {
+            case 'QUERYING':
+                return (
+                    <Text style={styles.status__value, styles.status__value__querying}>
+                        CONSULTANDO
+                    </Text>
+                )
+            case 'DOWNLOADED':
+                return (
+                    <Text style={styles.status__value, styles.status__value__success}>
+                        LISTO
+                    </Text>
+                )
+            case 'ERROR':
+                return (
+                    <Text style={styles.status__value, styles.status__value__error}>
+                        ERROR
+                    </Text>
+                )
+            case 'NOT_FOUND':
+                return (
+                    <Text style={styles.status__value, styles.status__value__notfound}>
+                        SIN DESCARGAR
+                    </Text>
+                )
+            default:
+                return null
+                break;
+        }
+    }
+
 
     render () {
-        let { transformer_info, users } = this.props.balance.transformer_data 
-        let { requestStatus } = this.props.balance
-        const BUTTONS = ['Levantamiento', 'Toma de Lecturas', 'Borrar', 'Cancelar']
+        const { transformer_info, users } = this.props.balance.transformer_data 
+        const { requestStatus } = this.props.balance
+        const { local_transformer_data_status } = this.props.transformActivities
+
         return (
             <View style={{flex: 1}}>
                 <Header androidStatusBarColor='black' style={{backgroundColor: Colors.background}}>
@@ -49,34 +113,48 @@ class TransformerViewScreen extends Component {
                     (   
                         <Tabs>
                             <Tab heading={ <TabHeading style={styles.tabHeading} ><Icon type='MaterialIcons' name='dashboard'/><Text></Text></TabHeading> }>
-                                <ScrollView>
-                                    <Text>{`Estructura: ${transformer_info.structure}`}</Text>
-                                    <Button full info
-                                        onPress={() => {
-                                            ActionSheet.show(
-                                                {
-                                                    options: BUTTONS,
-                                                    cancelButtonIndex: 3,
-                                                    destructiveButtonIndex: 2,
-                                                    title: 'NUEVA ACCIÓN'
-                                                },
-                                                buttonIndex => {
-                                                    switch (buttonIndex) {
-                                                        case 0:
-                                                            this.handleStakeOut()
-                                                            break;
-                                                    
-                                                        default:
-                                                            break;
-                                                    }
-                                                }
-                                            )
-                                        }}
-                                        >
-                                        <Text>Acciones</Text>
-                                    </Button>
+                                <ScrollView style={{padding: 15}}>
+                                    <TransformerInfo />
+                                    <Text style={styles.section__title}>Actividades para ejecutar</Text>
+                                    <View style={styles.activities__wrapper}>
+                                        <Button
+                                            style={styles.activities__button}
+                                            >
+                                            <Text style={styles.activities__button__text}>Levantamiento</Text>
+                                        </Button>
+                                        <Button
+                                            style={styles.activities__button}
+                                            >
+                                            <Text style={styles.activities__button__text}>Toma de Lecturas</Text>
+                                        </Button>
+                                    </View>
+                                    <Text style={styles.section__title}>Gestión de Datos Locales</Text>
+                                    <View style={styles.data__wrapper}>
+                                        <View style={styles.data__statuswrapper}>
+                                            <Text style={styles.status__name}>Estado Actual:</Text>
+                                            {this._renderDataStatus()}
+                                        </View>
+                                        <View style={styles.data__buttonswrapper}>
+                                            <Button
+                                                icon
+                                                style={[styles.data__button, styles.data__button__download]}
+                                                onPress={this.handleDownloadInfo}
+                                                >
+                                                <Icon type='AntDesign' name='download'/>
+                                                <Text style={styles.databutton__text}>Descargar</Text>
+                                            </Button>
+                                            <Button
+                                                icon
+                                                style={[styles.data__button, styles.data__button__delete]}
+                                                onPress={this.handleCleanLocalInfo}
+                                                >
+                                                <Icon type='AntDesign' name='delete' />
+                                                <Text style={styles.databutton__text}>Eliminar</Text>
+                                            </Button>
+                                        </View>
+                                    </View>
                                 </ScrollView>
-                            </Tab>
+                            </Tab> 
                             <Tab heading={ <TabHeading style={styles.tabHeading}><Icon type='MaterialIcons' name='home'/></TabHeading> }>
                             </Tab>
                             <Tab heading={ <TabHeading style={styles.tabHeading}><Icon type='MaterialIcons' name='warning'/></TabHeading> }>
@@ -94,6 +172,75 @@ class TransformerViewScreen extends Component {
 const styles = StyleSheet.create({
     tabHeading: {
         backgroundColor: Colors.background
+    },
+    section__title: {
+        fontSize: 16,
+        marginBottom: 15
+    },
+    activities__wrapper: {
+        display: 'flex',
+        flexDirection: 'row',
+        padding: 15,
+        backgroundColor: '#F6F6F6',
+        justifyContent: 'space-between'
+    },
+    activities__button: {
+        display: 'flex',
+        justifyContent: 'center',
+        width: '48%',
+        backgroundColor: '#5BA87B'
+    },
+    activities__button__text: {
+        fontSize: 11
+    },
+    data__wrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        padding: 15,
+        backgroundColor: '#F6F6F6',
+        height: 130
+    },
+    data__statuswrapper: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingBottom: 15
+    },
+    status__name: {
+        fontWeight: 'bold'
+    },
+    status__value: {
+    },
+    status__value__success: {
+        color: '#17A500'
+    },
+    status__value__querying: {
+        color: '#5796CF'
+    },
+    status__value__error: {
+        color: '#C84646'
+    },
+    status__value__notfound: {
+        color: '#8D7CF4'
+    },
+    data__buttonswrapper: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    data__button: {
+        display: 'flex',
+        justifyContent: 'center',
+        width: '48%'
+    },
+    databutton__text: {
+        fontSize: 11
+    },
+    data__button__download: {
+        backgroundColor: '#0281A9'
+    },
+    data__button__delete: {
+        backgroundColor: '#C84646'
     }
 })
 
@@ -109,8 +256,17 @@ const mapDispatchToProps = dispatch => ({
     setTransformerRequestStatus: (newStatus) => {
         dispatch(setTransformerRequestStatus(newStatus))
     },
-    getTransformerStakeOuts: (transformer_id) => {
-        dispatch(getTransformerStakeOuts(transformer_id))
+    downloadTransformerToLocal: (t_data) => {
+        dispatch(downloadTransformerToLocal(t_data))
+    },
+    cleanLocalTransformerData: (t_id, t_structure) => {
+        dispatch(cleanLocalTransformerData(t_id, t_structure))
+    },
+    getLocalTransformerUsers: (t_id, t_structure) => {
+        dispatch(getLocalTransformerUsers(t_id, t_structure))
+    },
+    getLocalTransfomerDataStatus: (t_id, t_structure) => {
+        dispatch(getLocalTransfomerDataStatus(t_id, t_structure))
     }
 })
 
