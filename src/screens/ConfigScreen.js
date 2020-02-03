@@ -17,11 +17,20 @@ import {
     CardItem,
     Text,
     Right,
+    Input,
+    Form,
+    Item,
+    Label,
+    Button
 } from 'native-base'
+import { setApiIp } from '../actions/apiActions'
 
 class ConfigScreen extends Component {
     constructor(props) {
         super(props)
+        this.state = {
+            newApiIp: ''
+        }
     }
 
     static navigationOptions = {
@@ -29,6 +38,14 @@ class ConfigScreen extends Component {
         drawerIcon: ({tintColor}) => (
             <Icon name='settings' size={24} style={[{width: 24, height: 24},{color: tintColor}]}/>
         )
+    }
+
+    handleChangeAPIIP = () => {
+        const newApiIp = this.state.newApiIp
+
+        if (newApiIp.trim().length) {
+            this.props.setApiIp(newApiIp)
+        }
     }
 
     render() {
@@ -44,57 +61,28 @@ class ConfigScreen extends Component {
                     </Header>
                     <Container>
                         <Content>
-                            <Card>
-                                <CardItem>
-                                    <Text>Conexiones</Text>
-                                </CardItem>
-                                <CardItem>
-                                    <Icon active type='Entypo' name='network'/>
-                                    <Text>Internet</Text>
-                                    <Right>
-                                        <Icon name="checkcircle" type='AntDesign'/>
-                                    </Right>
-                                </CardItem>
-                                <CardItem>
-                                    <Icon active type='AntDesign' name='API'/>
-                                    <Text>API</Text>
-                                    <Right>
-                                        <Icon name="checkcircle" type='AntDesign'/>
-                                    </Right>
-                                </CardItem>
-                                <CardItem>
-                                    <Icon active type='MaterialIcons' name='compare-arrows'/>
-                                    <Text>Websocket</Text>
-                                    <Right>
-                                        <Icon name="checkcircle" type='AntDesign'/>
-                                    </Right>
-                                </CardItem>
-                            </Card>
-                            <Card>
-                                <CardItem>
-                                    <Text>Almacenamiento</Text>
-                                </CardItem>
-                                <CardItem>
-                                    <Icon active type='MaterialIcons' name='memory'/>
-                                    <Text>Memoria Interna</Text>
-                                    <Right>
-                                        <Icon name="checkcircle" type='AntDesign'/>
-                                    </Right>
-                                </CardItem>
-                                <CardItem>
-                                    <Text>Espacio disponible: 4GB</Text>
-                                </CardItem>
-                                <CardItem>
-                                    <Icon active type='MaterialIcons' name='sd-card'/>
-                                    <Text>Memoria Externa</Text>
-                                    <Right>
-                                        <Icon name="checkcircle" type='AntDesign'/>
-                                    </Right>
-                                </CardItem>
-                                <CardItem>
-                                    <Text>Espacio disponible: 16GB</Text>
-                                </CardItem>
-                            </Card>
+                            <View style={ConfigStyles.api__mainwrapper}>
+                                <Form style={ConfigStyles.api__form}>
+                                    <Text>{this.props.api.url}</Text>
+                                    <Item stackedLabel>
+                                        <Label>IP API</Label>
+                                        <Input 
+                                            value={this.state.newApiIp}
+                                            onChangeText={text => {
+                                                this.setState({
+                                                    newApiIp: text
+                                                })
+                                            }}
+                                        />
+                                    </Item>
+                                    <Button
+                                        full
+                                        onPress={this.handleChangeAPIIP}
+                                        >
+                                        <Text>Cambiar API IP</Text>
+                                    </Button>
+                                </Form>
+                            </View>
                         </Content>
                     </Container>
                 </View>
@@ -104,15 +92,22 @@ class ConfigScreen extends Component {
 }
 
 const ConfigStyles = StyleSheet.create({
+    api__mainwrapper: {
+        display: 'flex'
+    },
+    api__form: {
 
+    }
 })
 
 const mapStateToProps = state => ({
-    
+    api: state.api
 })
 
 const mapDispatchToProps = dispatch => ({
-
+    setApiIp: (newApiIp) => {
+        dispatch(setApiIp(newApiIp))
+    }
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(ConfigScreen)

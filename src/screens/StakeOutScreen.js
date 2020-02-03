@@ -2,13 +2,16 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {
     View,
-    ScrollView
+    ScrollView,
+    StyleSheet,
+    Dimensions
 } from 'react-native'
 import { Colors } from '../config'
 import { Header, Left, Button, Icon, Body, Title, Text} from 'native-base'
-import { BarChart, Grid } from 'react-native-svg-charts'
-import AddNode from '../components/AddNode'
+import { BarChart } from 'react-native-chart-kit'
 import { addTransformerStakeOut, addStakeoutNode, delStakeoutNode, updateTransformerStakeOut, chargueTransformerStakeOut} from '../actions'
+import { addLocalActivity, loadStakeoutNodes } from '../actions/transformActivitiesActions'
+import NodeList from '../components/NodeList'
 
 class StakeOutScreen extends Component {
     constructor(props) {
@@ -34,9 +37,18 @@ class StakeOutScreen extends Component {
         this.props.delStakeoutNode(node)
     }
 
+    handleAddLocalActivity = () => {
+        const activity = this.props.navigation.getParam('activity')
+
+        this.props.addLocalActivity(activity)
+        this.props.loadStakeoutNodes(activity)
+    }
+
     render () {
-        const stakeout = this.props.transformActivities.actualStakeOut
-        
+        const { 
+            actual_activity_loaded,
+            actual_nodes_loaded,
+        } = this.props.transformActivities
         return (
             <View style={{flex: 1}}>
                 <Header 
@@ -45,7 +57,12 @@ class StakeOutScreen extends Component {
                     <Left>
                         <Button transparent
                             onPress={ () => {
-                                this.props.navigation.navigate('Transformers')
+                                const activity = this.props.navigation.getParam('activity')
+                                this.props.navigation.navigate('TransformerView', {
+                                    transformer_id: activity.transformer_id,
+                                    structure: activity.transformer_info[0].structure,
+                                    activity: activity
+                                })
                             }}
                             >
                             <Icon name='arrow-back'/>
@@ -55,47 +72,112 @@ class StakeOutScreen extends Component {
                         <Title>Levantamiento</Title>
                     </Body>
                 </Header>
-                <ScrollView>
-                <BarChart
-                    style={{ height: 200}}
-                    data={[30,52]}
-                    svg={{ fill: 'rgba(248,157,70,.2)', stroke: 'rgba(248,157,70,1)'}}
-                    contentInset={{top: 30, bottom: 30}}
-                    >
-                    <Grid/>
-                </BarChart>
-                <AddNode 
-                    handleStakeOutNode={this.handleStakeOutNode}
-                    handleAddNode={this.handleAddNode}
-                    handleRemoveNode={this.handleRemoveNode}
-                    nodes={stakeout.nodes || []}
+                <ScrollView style={{padding: 15}}>
+                    <Text style={styles.section__title}>Estado Levantamiento</Text>
+                    <View style={styles.chart__wrapper}>
+                    <BarChart
+                        data={{
+                        labels: ["Cedenar", "Nuevos", "No Encontrados"],
+                        legend: ["L1","l2","L3"],
+                        datasets: [
+                            {
+                            data: [63,20,5],
+                            },
+                        ]
+                        }}
+                        width={Dimensions.get("window").width - 50} // from react-native
+                        height={200}
+                        chartConfig={{
+                            backgroundColor: "#F6F6F6",
+                            backgroundGradientFrom: "#F6F6F6",
+                            backgroundGradientTo: "#F6F6F6",
+                            color: (opacity = 1) => `#9b59b6`,
+                            labelColor: (opacity = 1) => `black`,
+                            decimalPlaces: 4,
+                            style: {
+                                padding: 10
+                            },
+                            
+                        }}
+                        style={{
+                        }}
+                        withHorizontalLabels={true}
+                        withInnerLines={false}
                     />
-                <Button
-                    full
-                    success
-                    onPress={() => {
-                        this.props.updateTransformerStakeOut(this.props.navigation.getParam('transformer_id'))
-                    }}
-                    >
-                    <Icon name='save'/>
-                    <Text>Guardar</Text>
-                </Button>
-                <Button
-                    full
-                    primary
-                    onPress={() => {
-                        const id = this.props.navigation.getParam('transformer_id')
-                        this.props.chargueTransformerStakeOut(id)
-                    }}
-                    >
-                    <Icon type='MaterialIcons' name='get-app'/>
-                    <Text>Cargar</Text>
-                </Button>
+                    </View>
+                    <Text style={styles.section__title}>Nodos</Text>
+                    <View style={styles.nodelist_wrapper}>
+                        {
+                            (actual_activity_loaded && actual_nodes_loaded) 
+                            ? (<NodeList />)
+                            : (<Text>Debe cargar datos...</Text>)
+                        }
+                        
+                    </View>
+                    <Text style={styles.section__title}>Gestion de Datos</Text>
+                    <View style={styles.data_wrapper}>
+                        <Button style={[styles.databutton, styles.databutton__load, actual_activity_loaded ? styles.button__disable : null]}
+                            full
+                            onPress={this.handleAddLocalActivity}
+                            disabled={actual_activity_loaded}
+                            >
+                            <Text>Cargar</Text>
+                        </Button>
+                        <Button style={[styles.databutton, styles.databutton__delete, actual_activity_loaded ? null : styles.button__disable]}
+                            full
+                            disabled={!actual_activity_loaded}
+                            >
+                            <Text>Eliminar</Text>
+                        </Button>
+                    </View>
                 </ScrollView>
             </View>
         )
     }
 }
+
+
+const styles = StyleSheet.create({
+    section__title: {
+        fontSize: 16,
+        marginBottom: 15
+    },
+    chart__wrapper: {
+        display: 'flex',
+        height: 220,
+        backgroundColor: '#F6F6F6',
+        paddingVertical: 10,
+        marginBottom: 15
+    },
+    nodelist_wrapper: {
+        display: 'flex',
+        backgroundColor: '#F6F6F6',
+        padding: 10,
+        marginBottom: 15
+    },
+    data_wrapper: {
+        display: 'flex',
+        backgroundColor: '#F6F6F6',
+        padding: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        height: 60,
+        marginBottom: 30
+    },
+    databutton: {
+        width: '47%',
+        height: 40
+    },
+    databutton__load: {
+        backgroundColor: '#0281A9'
+    },
+    databutton__delete: {
+        backgroundColor: '#C84646'
+    },
+    button__disable: {
+        backgroundColor: '#C3C3C3'
+    }
+})
 
 const mapStateToProps = state => ({
     transformActivities: state.transformActivities
@@ -116,6 +198,12 @@ const mapDispatchToProps = dispatch => ({
     },
     chargueTransformerStakeOut: (transformer_id) => {
         dispatch(chargueTransformerStakeOut(transformer_id))
+    },
+    addLocalActivity: (activity) => {
+        dispatch(addLocalActivity(activity))
+    },
+    loadStakeoutNodes: (activity) => {
+        dispatch(loadStakeoutNodes(activity))
     }
 })
 

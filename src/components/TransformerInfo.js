@@ -18,18 +18,14 @@ class TransformerInfo extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            data_props: [
-                {name: 'Capacidad', value:'45KVA'},
-                {name: 'Macromedidor', value:'1829556'},
-                {name: 'Ratio', value:'250/5'},
-                {name: 'Usarios Cedenar', value: '4'},
-                {name: 'Usuarios Nuevos', value: '2'}
-            ]
         }
     }
 
     _renderDataProps = () => {
-        const { data_props } = this.state
+        const data_props = [
+            {name: 'Macromedidor', value: this.props.tinfo.macro_info[0].serial},
+            {name: 'Ratio', value:`${this.props.tinfo.macro_info[0].ratio}/5`},
+        ]
 
         return data_props.map((prop, i) => (
             <View style={styles.datawrapper__propwrapper} key={i}>
@@ -40,6 +36,8 @@ class TransformerInfo extends Component {
     }
 
     render() {
+        const {structure, town, address, kva} = this.props.tinfo
+
         return (
             <View style={styles.main__wrapper}>
                 <Text style={styles.infocard__title}>Información del Transformador</Text>
@@ -49,12 +47,22 @@ class TransformerInfo extends Component {
                         source={{uri: 'https://images.pexels.com/photos/157827/pexels-photo-157827.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'}}
                         resizeMode='cover'
                         />
-                    <Text style={styles.infocard__structure}>41TA025669</Text>
-                    <Text style={styles.infocard__address}>Cra 37A 12 - 84 La Florida</Text>
-                    <Text style={styles.infocard__town}>Pasto</Text>
-                    <View style={styles.infocard__datawraper}>
-                        {this._renderDataProps()}
-                    </View>
+                    <Text style={styles.infocard__structure}>{structure}</Text>
+                    <Text style={styles.infocard__address}>{address}</Text>
+                    <Text style={styles.infocard__town}>{`${kva} KVA - ${town}`}</Text>
+                    {
+                        this.props.tinfo.macro_info.length ? 
+                        (
+                            <View style={styles.infocard__datawraper}>
+                                 {this._renderDataProps()}
+                            </View>
+                        ) : 
+                        (
+                            <View style={styles.infocard__datawraper}>
+                                <Text>Sin Macromedidor</Text>
+                            </View>
+                        )
+                    }
                 </View>
             </View>
         )
@@ -108,7 +116,6 @@ const styles = StyleSheet.create({
     datawrapper__propwrapper: {
         display: 'flex',
         flexDirection: 'row',
-        width: '45%',
         justifyContent: 'space-between',
         height: 25
     },

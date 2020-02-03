@@ -8,12 +8,7 @@ import {
 const initialState = {
     transformers: [],
     requestStatus: 'WAITING',
-    transformer_data: {
-        transformer_info: {
-            structure: ''
-        },
-        users: []
-    }
+    transformer_data: {}
 }
 
 export default balanceReducer = (state = initialState, action) => {

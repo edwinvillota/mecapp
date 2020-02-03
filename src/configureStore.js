@@ -10,12 +10,12 @@ const persistConfig = {
     whitelist: [
         'boxstate',
         'transformActivities',
-        'balance'
+        'balance',
+        'api'
     ],
     blacklist: [
         'authentication',
-        'sidebar',
-        'api'
+        'sidebar'
     ]
 }
 

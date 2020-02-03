@@ -8,6 +8,7 @@ import { Fab, Button, Icon, Header, Left, Body, Title, Right } from 'native-base
 import TransformersViewer from '../components/TransformersViewer'
 import { Colors } from '../config'
 import { getAllTransformers } from '../actions'
+import { getAsignedTransformerActivities } from '../actions/transformActivitiesActions'
 
 class TransformerScreen extends Component {
     constructor(props) {
@@ -20,7 +21,7 @@ class TransformerScreen extends Component {
     }
 
     handleRefreshTransformers = () => {
-        this.props.getAllTransformers()
+        this.props.getAsignedTransformerActivities()
     }
 
     render(){
@@ -63,6 +64,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     getAllTransformers: () => {
         dispatch(getAllTransformers())
+    },
+    getAsignedTransformerActivities: () => {
+        dispatch(getAsignedTransformerActivities())
     }
 })
 

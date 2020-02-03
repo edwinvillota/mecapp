@@ -8,6 +8,7 @@ import axios from 'axios'
 import jwt_decode from 'jwt-decode'
 import {Toast, ActionSheet} from 'native-base'
 import {AsyncStorage, Alert} from 'react-native'
+import {getLocalTransfomerDataStatus} from './transformActivitiesActions'
 
 // Sidebar Actions
 export const openSideBar = () => {
@@ -226,10 +227,12 @@ export const getTransformerData = (id) => {
         dispatch(setTransformerRequestStatus('REQUESTING'))
         const { url } = getState().api
         const endpoint = `${url}/transformer/${id}`
+        console.log(endpoint)
         return axios.get(endpoint)
             .then(response => {
                 const data = response.data
                 dispatch(getTransformerDataSuccess(data))
+                dispatch(getLocalTransfomerDataStatus(data[0]._id, data[0].structure))
             })
             .catch(err => {
                 alert(err)

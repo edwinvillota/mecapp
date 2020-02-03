@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getAllTransformers, getTransformerData, chargueTransformerStakeOut } from '../actions'
+import { getAsignedTransformerActivities } from '../actions/transformActivitiesActions'
 import {
     AppRegistry,
     StyleSheet,
@@ -16,27 +17,33 @@ class TransformerViewer extends Component {
     }
 
     componentDidMount() {
-        this.props.getAllTransformers()
+        this.props.getAsignedTransformerActivities()
     }
 
     render() {
-        const {transformers} = this.props.balance
+        const asignedActivities = this.props.transformActivities.asigned_transformer_activities
         let items = false
-        if (transformers.length) {
-            items = transformers.map((t, i) => (
+        if (asignedActivities.length) {
+            items = asignedActivities.map((a, i) => (
                 <ListItem button={true} key={i}>
                     <TouchableOpacity 
                         style={{flex: 1, flexDirection: 'row'}}
                         onPress={() => {
-                            this.props.getTransformerData(t._id)
+                            this.props.getTransformerData(a.transformer_id)
                             this.props.navigation.navigate('TransformerView', {
-                                transformer_id: t._id,
-                                structure: t.structure
+                                transformer_id: a.transformer_id,
+                                structure: a.transformer_info[0].structure,
+                                activity: a
                             })
                         }}
                         >
                     <Left>
-                        <Text>{t.structure}</Text>
+                        {
+                            (a.type === 'STAKEOUT') ?
+                            (<Icon type='Foundation' name='database' style={[styles.typeIcon, styles.typeIconStakeout]}/>) :
+                            (<Icon type='Octicons' name='tasklist' style={[styles.typeIcon, styles.typeIconLecture]}/>)
+                        }
+                        <Text>{a.transformer_info[0].structure}</Text>
                     </Left>
                     <Right>
                         <Icon name='arrow-forward'/>
@@ -57,6 +64,16 @@ class TransformerViewer extends Component {
 
 const styles = StyleSheet.create({
     transformerList: {
+    },
+    typeIcon: {
+        marginRight: 10,
+        marginLeft: 10
+    },
+    typeIconStakeout: {
+        color: '#2980b9'
+    },
+    typeIconLecture: {
+        color: '#e67e22'
     }
 })
 
@@ -74,6 +91,9 @@ const mapDispatchToProps = dispatch => ({
     },
     chargueTransformerStakeOut: (transformer_id) => {
         dispatch(chargueTransformerStakeOut(transformer_id))
+    },
+    getAsignedTransformerActivities: () => {
+        dispatch(getAsignedTransformerActivities())
     }
 })
 

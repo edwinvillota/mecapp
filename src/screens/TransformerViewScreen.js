@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import {
     View,
     ScrollView,
-    StyleSheet
+    StyleSheet,
+    Alert
 } from 'react-native'
 import { Header, Left, Button, Title, Body, Icon, Text, Tabs, Tab, TabHeading, Spinner, ActionSheet} from 'native-base'
 import { Colors } from '../config'
@@ -13,7 +14,9 @@ import {
     downloadTransformerToLocal,
     cleanLocalTransformerData,
     getLocalTransformerUsers,
-    getLocalTransfomerDataStatus
+    getLocalTransfomerDataStatus,
+    clearActualActivity,
+    clearActualNodes
 } from '../actions/transformActivitiesActions'
 import TransformerInfo from '../components/TransformerInfo'
 
@@ -31,21 +34,27 @@ class TransformerViewScreen extends Component {
         drawerLabel: () => (null)
     }
 
-    componentDidMount() {
-        const id = this.props.navigation.getParam('transformer_id')
-        const structure = this.props.navigation.getParam('structure')
-        this.props.getTransformerData(id)
-        this.props.getLocalTransfomerDataStatus(id, structure)
-    }
 
     handleDownloadInfo = () => {
-        const t_data  = this.props.balance.transformer_data
+        const t_data  = this.props.balance.transformer_data[0]
         this.props.downloadTransformerToLocal(t_data)
     }
 
     handleCleanLocalInfo = () => {
-        const t_info = this.props.balance.transformer_data.transformer_info
-        this.props.cleanLocalTransformerData(t_info._id, t_info.structure)   
+        Alert.alert(
+            'Esta Seguro?',
+            'Se borraran permanentemente los datos del transformador',
+            [
+                {text: 'OK', onPress: () => {
+                    const t_info = this.props.balance.transformer_data[0]
+                    this.props.cleanLocalTransformerData(t_info._id, t_info.structure)
+                }},
+                {text: 'Cancelar', onPress: () => {
+                    return
+                }}
+            ],
+            {cancelable: true}
+        )
     }
 
     handleGetTransformerUsers = () => {
@@ -55,7 +64,6 @@ class TransformerViewScreen extends Component {
 
     _renderDataStatus = () => {
         const { local_transformer_data_status } = this.props.transformActivities
-        console.log(local_transformer_data_status)
         switch (local_transformer_data_status) {
             case 'QUERYING':
                 return (
@@ -89,9 +97,10 @@ class TransformerViewScreen extends Component {
 
 
     render () {
-        const { transformer_info, users } = this.props.balance.transformer_data 
         const { requestStatus } = this.props.balance
         const { local_transformer_data_status } = this.props.transformActivities
+        const activity = this.props.navigation.getParam('activity')
+        const activityType = activity.type
 
         return (
             <View style={{flex: 1}}>
@@ -114,16 +123,24 @@ class TransformerViewScreen extends Component {
                         <Tabs>
                             <Tab heading={ <TabHeading style={styles.tabHeading} ><Icon type='MaterialIcons' name='dashboard'/><Text></Text></TabHeading> }>
                                 <ScrollView style={{padding: 15}}>
-                                    <TransformerInfo />
+                                    <TransformerInfo tinfo={this.props.balance.transformer_data[0]}/>
                                     <Text style={styles.section__title}>Actividades para ejecutar</Text>
                                     <View style={styles.activities__wrapper}>
                                         <Button
-                                            style={styles.activities__button}
+                                            disabled={(local_transformer_data_status === 'DOWNLOADED' || activityType !== 'STAKEOUT') ? false : true}
+                                            style={[styles.activities__button, (local_transformer_data_status !== 'DOWNLOADED' || activityType !== 'STAKEOUT') ? styles.activities__button__disable : null]}
+                                            onPress={() => {
+                                                this.props.clearActualActivity()
+                                                this.props.navigation.navigate('StakeOut', {
+                                                    activity: activity
+                                                })
+                                            }}
                                             >
                                             <Text style={styles.activities__button__text}>Levantamiento</Text>
                                         </Button>
                                         <Button
-                                            style={styles.activities__button}
+                                            disabled={(local_transformer_data_status === 'DOWNLOADED' || activityType !== 'LECTURE') ? false : true}
+                                            style={[styles.activities__button, (local_transformer_data_status !== 'DOWNLOADED' || activityType !== 'LECTURE') ? styles.activities__button__disable : null]}
                                             >
                                             <Text style={styles.activities__button__text}>Toma de Lecturas</Text>
                                         </Button>
@@ -137,7 +154,8 @@ class TransformerViewScreen extends Component {
                                         <View style={styles.data__buttonswrapper}>
                                             <Button
                                                 icon
-                                                style={[styles.data__button, styles.data__button__download]}
+                                                disabled={(local_transformer_data_status === 'DOWNLOADED')}
+                                                style={[styles.data__button, styles.data__button__download, (local_transformer_data_status === 'DOWNLOADED') ? styles.activities__button__disable : null]}
                                                 onPress={this.handleDownloadInfo}
                                                 >
                                                 <Icon type='AntDesign' name='download'/>
@@ -145,7 +163,8 @@ class TransformerViewScreen extends Component {
                                             </Button>
                                             <Button
                                                 icon
-                                                style={[styles.data__button, styles.data__button__delete]}
+                                                disabled={(local_transformer_data_status === 'NOT_FOUND')}
+                                                style={[styles.data__button, styles.data__button__delete, (local_transformer_data_status === 'NOT_FOUND') ? styles.activities__button__disable : null]}
                                                 onPress={this.handleCleanLocalInfo}
                                                 >
                                                 <Icon type='AntDesign' name='delete' />
@@ -189,6 +208,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '48%',
         backgroundColor: '#5BA87B'
+    },
+    activities__button__disable: {
+        backgroundColor: '#C3C3C3'
     },
     activities__button__text: {
         fontSize: 11
@@ -267,6 +289,12 @@ const mapDispatchToProps = dispatch => ({
     },
     getLocalTransfomerDataStatus: (t_id, t_structure) => {
         dispatch(getLocalTransfomerDataStatus(t_id, t_structure))
+    },
+    clearActualActivity: () => {
+        dispatch(clearActualActivity())
+    },
+    clearActualNodes: () => {
+        dispatch(clearActualNodes())
     }
 })
 
