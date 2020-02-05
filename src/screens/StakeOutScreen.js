@@ -109,7 +109,7 @@ class StakeOutScreen extends Component {
                     <View style={styles.nodelist_wrapper}>
                         {
                             (actual_activity_loaded && actual_nodes_loaded) 
-                            ? (<NodeList />)
+                            ? (<NodeList navigation={this.props.navigation}/>)
                             : (<Text>Debe cargar datos...</Text>)
                         }
                         

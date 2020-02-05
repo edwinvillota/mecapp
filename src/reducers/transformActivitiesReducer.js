@@ -7,7 +7,9 @@ import {
     SET_ACTUAL_ACTIVITY,
     CLEAR_ACTUAL_ACTIVITY,
     SET_ACTUAL_NODES,
-    CLEAR_ACTUAL_NODES
+    CLEAR_ACTUAL_NODES,
+    SET_ACTUAL_TRANSFORMER_USERS,
+    CLEAR_ACTUAL_TRANSFORMER_USERS
 } from '../types'
 
 const initialState = {
@@ -19,7 +21,9 @@ const initialState = {
     actual_activity_loaded: false,
     actual_activity: false,
     actual_nodes_loaded: false,
-    actual_nodes: []
+    actual_nodes: [],
+    actual_transformer_users_loaded: false,
+    actual_transformer_users: []
 }
 
 export default transformActivitiesReducer = (state = initialState, action) => {
@@ -72,6 +76,18 @@ export default transformActivitiesReducer = (state = initialState, action) => {
                 ...state,
                 actual_nodes_loaded: false,
                 actual_nodes: []
+            }
+        case SET_ACTUAL_TRANSFORMER_USERS:
+            return {
+                ...state,
+                actual_transformer_users_loaded: true,
+                actual_transformer_users: action.users
+            }
+        case CLEAR_ACTUAL_TRANSFORMER_USERS:
+            return {
+                ...state,
+                actual_transformer_users_loaded: false,
+                actual_transformer_users: []
             }
         default: 
             return state

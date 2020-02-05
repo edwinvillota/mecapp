@@ -26,6 +26,7 @@ class NodeList extends Component {
                 <CreateNode 
                     transformActivities={this.props.transformActivities}
                     addLocalStakeoutNode={this.props.addLocalStakeoutNode}
+                    navigation={this.props.navigation}
                     />
             </View>
         )
@@ -58,12 +59,13 @@ class CreateNode extends Component {
     _renderNodes = () => {
         const {
             actual_nodes_loaded,
-            actual_nodes
+            actual_nodes,
+            actual_activity
         } = this.props.transformActivities
 
         if (actual_nodes_loaded && actual_nodes.length > 0) {
             const compNodes = actual_nodes.map((node, i) => (
-                <Node key={i} node={node}/>
+                <Node key={i} node={node} activity={actual_activity} navigation={this.props.navigation}/>
             ))
             
             return compNodes
@@ -129,7 +131,7 @@ class Node extends Component {
     }
 
     render () {
-        const { node } = this.props
+        const { node, activity } = this.props
         return (
             <View style={nodeStyles.main__wrapper}> 
                 <View style={nodeStyles.number__wrapper}>
@@ -159,7 +161,10 @@ class Node extends Component {
                         style={nodeStyles.action__button}
                         icon
                         onPress={() => {
-                            alert('Editar')
+                            this.props.navigation.navigate('NodeStakeOut', {
+                                node: node,
+                                activity: activity
+                            })
                         }}
                         >
                         <Icon type='AntDesign' name='edit' style={[nodeStyles.action__icon, nodeStyles.action__edit]}/>

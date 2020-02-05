@@ -1,7 +1,4 @@
 import { 
-    DOWNLOAD_TRANSFORMER_DATA_TO_LOCAL,
-    ADD_LOCAL_TRANSFORMER,
-    DELETE_LOCAL_TRANSFORMER,
     REGISTER_LOG_EVENT,
     UPDATE_TRANSFORMER_DOWNLOAD_STATUS,
     SET_LOCAL_TRANSFORMER_DATA_STATUS,
@@ -9,7 +6,9 @@ import {
     SET_ACTUAL_ACTIVITY,
     CLEAR_ACTUAL_ACTIVITY,
     SET_ACTUAL_NODES,
-    CLEAR_ACTUAL_NODES
+    CLEAR_ACTUAL_NODES,
+    SET_ACTUAL_TRANSFORMER_USERS,
+    CLEAR_ACTUAL_TRANSFORMER_USERS
 } from '../types'
 import DB from '../sqlite/database'
 import moment from 'moment'
@@ -265,17 +264,32 @@ export const getLocalTransformerUsers = (t_id, t_structure) => {
             .then(response => {
                 if (response.data.length) {
                     const event = new DatabaseEvent('Success', `Usuarios del transformador ${t_structure} obtenidos correctamente.`)
-                    console.log(response.data)
+                    dispatch(setActualTransformerUsers(response.data))
                     dispatch(registerLogEvent(event))
                 } else {
                     const event = new DatabaseEvent('Warning', `No se encontraron usuarios asociados al transformador ${t_structure}.`)                    
+                    dispatch(setActualTransformerUsers([]))
                     dispatch(registerLogEvent(event))
                 }
             })
             .catch(error => {
                 const event = new DatabaseEvent('Error', `Error al consultar los usuarios del transformador ${t_structure}.`, error)
                 dispatch(registerLogEvent(event))
+                dispatch(setActualTransformerUsers([]))
             })
+    }
+}
+
+export const setActualTransformerUsers = (users) => {
+    return {
+        type: SET_ACTUAL_TRANSFORMER_USERS,
+        users
+    }
+}
+
+export const clearActualTransformerUsers = () => {
+    return {
+        type: CLEAR_ACTUAL_TRANSFORMER_USERS
     }
 }
 
@@ -440,5 +454,32 @@ export const addLocalStakeoutNode = (node) => {
         }
     }
 }
+
+// export const getLocalTransformerUsers = (transformer_id) => {
+//     return async (dispatch, getState) => {
+//         const db = new DB()
+//         await db._init
+
+//         try {
+//             const queryResult = await db.query(
+//                 'SELECT * FROM Users WHERE transformer_id=?',
+//                 [transformer_id]
+//             )
+
+//             if (queryResult.data.length > 0) {
+//                 const users = queryResult.data
+
+//                 console.log(users)
+//             } else {
+//                 const event = new DatabaseEvent('Warning', `No se encontraron usuarios asociados al transformador ${transformer_id}`)
+//                 dispatch(registerLogEvent(event))
+//             }
+
+//         } catch (e) {
+//             const event = new DatabaseEvent('Error', `Error al consultar los usuarios del transformador ${transformer_id}`, e)
+//             dispatch(registerLogEvent(event))
+//         }
+//     } 
+// } 
 
 
