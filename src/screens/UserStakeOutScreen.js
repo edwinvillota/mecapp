@@ -23,7 +23,6 @@ import {
 } from 'native-base'
 import { Colors } from '../config'
 import CapturePhotoButton from '../components/CapturePhotoButton'
-import { addStakeoutUser, setTransformerUserStatus } from '../actions'
 
 class UserStakeOutScreen extends Component {
     constructor(props) {
@@ -127,6 +126,7 @@ class UserStakeOutScreen extends Component {
 
     render() {
         const user = this.props.navigation.getParam('user')
+        const node = this.props.navigation.getParam('node')
         return (
             <Container>
                 <Header 
@@ -136,9 +136,8 @@ class UserStakeOutScreen extends Component {
                         <Button transparent
                             onPress={ () => {
                                 this.props.navigation.navigate('NodeStakeOut', {
-                                    transformer_id: this.props.navigation.getParam('transformer_id'),
-                                    structure: this.props.navigation.getParam('structure'),
-                                    node_id: this.props.navigation.getParam('node')
+                                    node: this.props.navigation.getParam('node'),
+                                    activity: this.props.navigation.getParam('activity')
                                 })
                             }}
                             >
@@ -183,7 +182,7 @@ class UserStakeOutScreen extends Component {
                             <Label>Nodo</Label>
                             <Input 
                                 disabled
-                                value={`${this.props.navigation.getParam('node')}`}
+                                value={`${node.number}`}
                                 onChangeText={val => {
                                     this.handleChangeNode(val)
                                 }}
@@ -267,12 +266,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    addStakeoutUser: (newUser) => {
-        dispatch(addStakeoutUser(newUser))
-    },
-    setTransformerUserStatus: (meter, newStatus) => {
-        dispatch(setTransformerUserStatus(meter, newStatus))
-    }
+
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserStakeOutScreen)

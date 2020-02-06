@@ -25,6 +25,12 @@ class NodeStakeOutScreen extends Component {
         drawerLabel: () => (null)
     }
 
+    handleCloseSearchModal = () => {
+        this.setState({
+            userListModalVisible: false
+        })
+    }
+
     render () {
         const activity = this.props.navigation.getParam('activity')
         const node = this.props.navigation.getParam('node')
@@ -61,12 +67,17 @@ class NodeStakeOutScreen extends Component {
                         })
                     }}
                     >
-                    <View
+                    <ScrollView
                         style={styles.modal__userList}
                         >
 
-                        <LocalTransformerUserList />
-                    </View>
+                        <LocalTransformerUserList 
+                            navigation={this.props.navigation}
+                            node={node}
+                            activity={activity}
+                            handleCloseSearchModal={this.handleCloseSearchModal}
+                            />
+                    </ScrollView>
                 </Modal>
                 <ScrollView>
                     <View style={styles.main__container}>

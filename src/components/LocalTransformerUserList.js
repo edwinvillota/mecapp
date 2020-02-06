@@ -9,17 +9,50 @@ import {
     Text,
     Button,
     Icon,
-    Spinner
+    Spinner,
+    Form,
+    Item,
+    Label,
+    Input
 } from 'native-base'
 
 class LocalTransformerUserList extends Component {
     constructor(props) {
         super(props)
+        this.state = {
+            searchMeter: '',
+            filterUsers: []
+        }
+    }
+
+    handleChangeSearch = (value) => {
+        const users = this.props.transformActivities.actual_transformer_users
+        this.setState({
+            searchMeter: value
+        })
+        if (value.trim().length > 0) {
+            const regExp = new RegExp("(" + value + ")",'g')
+            const filterUsers = users.filter(u => regExp.test(u.meter))
+            this.setState({
+                filterUsers: filterUsers
+            })
+        } else {
+            this.setState({
+                filterUsers: users
+            })
+        }
     }
 
     _renderUserItems = () => {
-        const users = this.props.transformActivities.actual_transformer_users
-        
+        const { searchMeter, filterUsers } = this.state 
+        let users
+
+        if (searchMeter.trim().length > 0) {
+            users = filterUsers
+        } else {
+            users = this.props.transformActivities.actual_transformer_users
+        }
+
         return users.map((u, i) => (
             <View key={i} style={styles.userItem__wrapper}>
                 <View style={styles.status__wrapper}>
@@ -34,6 +67,14 @@ class LocalTransformerUserList extends Component {
                     <Button
                         icon
                         style={styles.action__button}
+                        onPress={() => {
+                            this.props.handleCloseSearchModal()
+                            this.props.navigation.navigate('UserStakeOut', {
+                                activity: this.props.activity,
+                                node: this.props.node,
+                                user: u
+                            })
+                        }}
                         >
                         <Icon type='AntDesign' name='arrowright' style={styles.action__icon}/> 
                     </Button>
@@ -46,6 +87,20 @@ class LocalTransformerUserList extends Component {
         const { actual_transformer_users_loaded } = this.props.transformActivities
         return (
             <View style={styles.main__wrapper}>
+                <View style={styles.search__wrapper}>
+                    <Form style={styles.search__form}>
+                        <Label style={styles.search__label}>Busqueda</Label>
+                        <Input 
+                            style={styles.search__input}
+                            keyboardType='number-pad'
+                            value={this.state.searchMeter}
+                            placeholder='Buscar Medidor ...'
+                            onChangeText={value => {
+                                this.handleChangeSearch(value)
+                            }}
+                        />
+                    </Form>
+                </View>
                 {
                     actual_transformer_users_loaded 
                     ? this._renderUserItems()
@@ -115,7 +170,43 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 40,
         marginLeft: 10
+    },
+    search__wrapper: {
+        display: 'flex'
+    },
+    search__form: {
+        display: 'flex',
+        width: '100%',
+        margin: 0,
+        padding: 0,
+        height: 80,
+        marginBottom: 15,
+        shadowColor: 'black',
+        shadowOffset: {
+            width: 4,
+            height: 3
+        },
+        shadowOpacity: 0.5,
+        shadowRadius: 2,
+        elevation: 2
+    },
+    search__input: {
+        backgroundColor: 'white',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        borderColor: '#C3C3C3',
+        height: 40,
+        paddingHorizontal: 10
+    },  
+    search__label: {
+        backgroundColor: '#7AB78B',
+        color: 'white',
+        borderTopRightRadius: 3,
+        borderTopLeftRadius: 3,
+        padding: 10,
+        height: 40
     }
+
 })
 
 const mapStateToProps = state => ({
