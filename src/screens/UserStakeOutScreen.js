@@ -23,6 +23,7 @@ import {
 } from 'native-base'
 import { Colors } from '../config'
 import CapturePhotoButton from '../components/CapturePhotoButton'
+import { stakeoutLocalUser } from '../actions/transformActivitiesActions'
 
 class UserStakeOutScreen extends Component {
     constructor(props) {
@@ -59,15 +60,16 @@ class UserStakeOutScreen extends Component {
             ubicacion,
             node: this.props.navigation.getParam('node')
         }
-        this.props.setTransformerUserStatus(user.meter, true)
-        this.props.addStakeoutUser(newUser)
+
+        this.props.stakeoutLocalUser(newUser)
     }
 
     back = () => {
+        const node = this.props.navigation.getParam('node')
+        const activity = this.props.navigation.getParam('activity')
         this.props.navigation.navigate('NodeStakeOut', {
-            transformer_id: this.props.navigation.getParam('transformer_id'),
-            structure: this.props.navigation.getParam('structure'),
-            node_id: this.props.navigation.getParam('node')
+            node: node,
+            activity: activity
         })
     }
 
@@ -266,7 +268,9 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-
+    stakeoutLocalUser: (user) => {
+        dispatch(stakeoutLocalUser(user))
+    } 
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserStakeOutScreen)

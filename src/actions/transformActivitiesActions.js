@@ -455,31 +455,27 @@ export const addLocalStakeoutNode = (node) => {
     }
 }
 
-// export const getLocalTransformerUsers = (transformer_id) => {
-//     return async (dispatch, getState) => {
-//         const db = new DB()
-//         await db._init
+export const stakeoutLocalUser = (stakeout_user) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+        
+        const location = `${stakeout_user.ubicacion.coords.latitude},${stakeout_user.ubicacion.coords.longitude}`
 
-//         try {
-//             const queryResult = await db.query(
-//                 'SELECT * FROM Users WHERE transformer_id=?',
-//                 [transformer_id]
-//             )
+        try {
+            const updateResults = await db.query(
+                'UPDATE Users SET node_id=?, location=?, activity_id=? WHERE id=?',
+                [stakeout_user.node.id, location, stakeout_user.node.stakeout_id, stakeout_user.info.id]
+            )
+    
+            if (updateResults.rows_affected > 0) {
+                console.log('La actualización se realizó')
+            }
 
-//             if (queryResult.data.length > 0) {
-//                 const users = queryResult.data
-
-//                 console.log(users)
-//             } else {
-//                 const event = new DatabaseEvent('Warning', `No se encontraron usuarios asociados al transformador ${transformer_id}`)
-//                 dispatch(registerLogEvent(event))
-//             }
-
-//         } catch (e) {
-//             const event = new DatabaseEvent('Error', `Error al consultar los usuarios del transformador ${transformer_id}`, e)
-//             dispatch(registerLogEvent(event))
-//         }
-//     } 
-// } 
+        } catch (e) {
+            console.log(e)
+        }
+    }
+}
 
 

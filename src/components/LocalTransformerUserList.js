@@ -54,8 +54,14 @@ class LocalTransformerUserList extends Component {
         }
 
         return users.map((u, i) => (
-            <View key={i} style={styles.userItem__wrapper}>
-                <View style={styles.status__wrapper}>
+            <View key={i} style={[
+                styles.userItem__wrapper,
+                (u.node_id !== 99) ? styles.disable__item : null
+                ]}>
+                <View style={[
+                    styles.status__wrapper,
+                    (u.node_id !== 99) ? styles.status__captured : null
+                    ]}>
                     {
                         (u.node_id === 99)
                         ? (<Icon type='AntDesign' name='search1' style={[styles.status__icon]}/>)
@@ -66,7 +72,11 @@ class LocalTransformerUserList extends Component {
                 <View style={styles.actions__wrapper}>
                     <Button
                         icon
-                        style={styles.action__button}
+                        disabled={(u.node_id !== 99)}
+                        style={[
+                            styles.action__button,
+                            (u.node_id !== 99) ? styles.action__disable : null
+                        ]}
                         onPress={() => {
                             this.props.handleCloseSearchModal()
                             this.props.navigation.navigate('UserStakeOut', {
@@ -205,6 +215,15 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 3,
         padding: 10,
         height: 40
+    },
+    disable__item: {
+        backgroundColor: '#bdc3c7'
+    },
+    status__captured: {
+        backgroundColor: '#7AB78B'
+    },
+    action__disable: {
+        backgroundColor: '#7f8c8d'
     }
 
 })
