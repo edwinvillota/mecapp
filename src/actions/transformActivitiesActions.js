@@ -8,7 +8,9 @@ import {
     SET_ACTUAL_NODES,
     CLEAR_ACTUAL_NODES,
     SET_ACTUAL_TRANSFORMER_USERS,
-    CLEAR_ACTUAL_TRANSFORMER_USERS
+    CLEAR_ACTUAL_TRANSFORMER_USERS,
+    SET_ACTUAL_STAKEOUT_USER,
+    CLEAR_ACTUAL_STAKEOUT_USER
 } from '../types'
 import DB from '../sqlite/database'
 import moment from 'moment'
@@ -478,4 +480,16 @@ export const stakeoutLocalUser = (stakeout_user) => {
     }
 }
 
+export const setActualStakeoutUser = (stakeout_user) => {
+    return {
+        type: SET_ACTUAL_STAKEOUT_USER,
+        stakeout_user
+    }
+}
+
+export const clearActualStakeoutUser = () => {
+    return {
+        type: CLEAR_ACTUAL_STAKEOUT_USER
+    }
+}
 

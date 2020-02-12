@@ -7,17 +7,32 @@ import {
     Text,
     StyleSheet,
     ScrollView,
-    Button
+    Button,
+    TouchableOpacityBase
 } from 'react-native'
 import {Colors} from '../config'
 import PageHeader from '../components/PageHeader'
-import AddNode from '../components/AddNode'
-
+import LocationField from '../components/LocationField'
+import PhotoField from '../components/PhotoField'
 
 class HomeScreen extends Component {
     constructor(props) {
         super(props)
+        this.state = {
+            props: {
+                location: '',
+                user_photo: ''
+            }
+        }
     }
+
+    handleChange = (propname, value) => {
+        this.setState({
+            props: {
+                [propname]: value
+            }
+        })  
+    } 
     
     static navigationOptions = {
         drawerLabel: 'Home',
@@ -32,6 +47,15 @@ class HomeScreen extends Component {
                 <View style={HomeStyles.mainView}>
                     <PageHeader text='Inicio'/>
                     <Text>{JSON.stringify(this.props.data)}</Text>
+                    <LocationField 
+                        name='location'
+                        label='Coordenadas'
+                        handleChange={this.handleChange}
+                        />
+                    <PhotoField 
+                        name='user_photo'
+                        label='Foto del Predio'
+                        />
                 </View>
             </ScrollView>
         )
@@ -44,6 +68,7 @@ const HomeStyles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'stretch',
+        padding: 15
     },
     section1: {
         height: '50%',

@@ -8,7 +8,6 @@ import {
 } from 'react-native'
 import { Colors } from '../config'
 import { Header, Left, Button, Icon, Body, Title, Text} from 'native-base'
-import { BarChart } from 'react-native-chart-kit'
 import { addTransformerStakeOut, addStakeoutNode, delStakeoutNode, updateTransformerStakeOut, chargueTransformerStakeOut} from '../actions'
 import { addLocalActivity, loadStakeoutNodes } from '../actions/transformActivitiesActions'
 import NodeList from '../components/NodeList'
@@ -75,35 +74,6 @@ class StakeOutScreen extends Component {
                 <ScrollView style={{padding: 15}}>
                     <Text style={styles.section__title}>Estado Levantamiento</Text>
                     <View style={styles.chart__wrapper}>
-                    <BarChart
-                        data={{
-                        labels: ["Cedenar", "Nuevos", "No Encontrados"],
-                        legend: ["L1","l2","L3"],
-                        datasets: [
-                            {
-                            data: [63,20,5],
-                            },
-                        ]
-                        }}
-                        width={Dimensions.get("window").width - 50} // from react-native
-                        height={200}
-                        chartConfig={{
-                            backgroundColor: "#F6F6F6",
-                            backgroundGradientFrom: "#F6F6F6",
-                            backgroundGradientTo: "#F6F6F6",
-                            color: (opacity = 1) => `#9b59b6`,
-                            labelColor: (opacity = 1) => `black`,
-                            decimalPlaces: 4,
-                            style: {
-                                padding: 10
-                            },
-                            
-                        }}
-                        style={{
-                        }}
-                        withHorizontalLabels={true}
-                        withInnerLines={false}
-                    />
                     </View>
                     <Text style={styles.section__title}>Nodos</Text>
                     <View style={styles.nodelist_wrapper}>

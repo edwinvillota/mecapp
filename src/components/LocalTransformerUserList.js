@@ -11,10 +11,12 @@ import {
     Icon,
     Spinner,
     Form,
-    Item,
     Label,
     Input
 } from 'native-base'
+import {
+    setActualStakeoutUser
+} from '../actions/transformActivitiesActions'
 
 class LocalTransformerUserList extends Component {
     constructor(props) {
@@ -79,10 +81,11 @@ class LocalTransformerUserList extends Component {
                         ]}
                         onPress={() => {
                             this.props.handleCloseSearchModal()
+                            this.props.setActualStakeoutUser(u)
                             this.props.navigation.navigate('UserStakeOut', {
                                 activity: this.props.activity,
                                 node: this.props.node,
-                                user: u
+                                mode: 'stakeout'
                             })
                         }}
                         >
@@ -232,8 +235,10 @@ const mapStateToProps = state => ({
     transformActivities: state.transformActivities
 })
 
-const mapDispatchToProps = dipatch => ({
-
+const mapDispatchToProps = dispatch => ({
+    setActualStakeoutUser: (stakeout_user) => {
+        dispatch(setActualStakeoutUser(stakeout_user))
+    }
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(LocalTransformerUserList)
