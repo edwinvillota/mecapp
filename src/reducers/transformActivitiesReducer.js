@@ -11,7 +11,11 @@ import {
     SET_ACTUAL_TRANSFORMER_USERS,
     CLEAR_ACTUAL_TRANSFORMER_USERS,
     SET_ACTUAL_STAKEOUT_USER,
-    CLEAR_ACTUAL_STAKEOUT_USER
+    CLEAR_ACTUAL_STAKEOUT_USER,
+    SET_ACTUAL_NODE_USERS,
+    CLEAR_ACTUAL_NODE_USERS,
+    SET_ACTUAL_USER_LECTURES,
+    CLEAR_ACTUAL_USER_LECTURES
 } from '../types'
 
 const initialState = {
@@ -27,7 +31,11 @@ const initialState = {
     actual_transformer_users_loaded: false,
     actual_transformer_users: [],
     actual_stakeout_user_loaded: false,
-    actual_stakeout_user: {}
+    actual_stakeout_user: {},
+    actual_node_users_loaded: false,
+    actual_node_users: [],
+    actual_user_lectures_loaded: false,
+    actual_user_lectures: []
 }
 
 export default transformActivitiesReducer = (state = initialState, action) => {
@@ -104,6 +112,30 @@ export default transformActivitiesReducer = (state = initialState, action) => {
                 ...state,
                 actual_stakeout_user_loaded: false,
                 actual_stakeout_user: {}
+            }
+        case SET_ACTUAL_NODE_USERS:
+            return {
+                ...state,
+                actual_node_users_loaded: true,
+                actual_node_users: action.users
+            }
+        case CLEAR_ACTUAL_NODE_USERS:
+            return {
+                ...state,
+                actual_node_users_loaded: false,
+                actual_node_users: []
+            }
+        case SET_ACTUAL_USER_LECTURES:
+            return {
+                ...state,
+                actual_user_lectures_loaded: true,
+                actual_user_lectures: action.lectures
+            }
+        case CLEAR_ACTUAL_USER_LECTURES: 
+            return {
+                ...state,
+                actual_node_users_loaded: false,
+                actual_user_lectures: []
             }
         default: 
             return state

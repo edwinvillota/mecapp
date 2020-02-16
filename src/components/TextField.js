@@ -27,16 +27,19 @@ class TextField extends Component {
             disable
         } = this.props
         return (
-            <View style={[styles.main__wrapper]}>
+            <View style={[
+                styles.main__wrapper,
+                this.props.error ? styles.error : null
+                ]}>
                 <Text style={styles.label}>{label}</Text>
                 <TextInput 
                     editable={!disable}
-                    style={[styles.input, this.props.error ? styles.input__error : null]}
+                    style={[styles.input]}
                     value={preloadData ? preloadData : ''}
                     placeholder={placeholder}
                     keyboardType={this.props.keyboardType}
                     onChangeText={value => this.handleChange(value)}
-                    placeholderTextColor={this.props.error ? 'red' : '#939393'}
+                    placeholderTextColor='#939393'
                 />
             </View>
         )
@@ -66,8 +69,12 @@ const styles = StyleSheet.create({
     },
     input__error: {
         borderColor: 'red'
+    },
+    error: {
+        paddingLeft: 10,
+        borderLeftWidth: 5,
+        borderLeftColor: 'red'
     }
-
 })
 
 export default TextField

@@ -36,7 +36,7 @@ const AppNavigator = createDrawerNavigator(
         Logout: LogoutScreen
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Transformers',
         drawerType: 'slide',
         drawerBackgroundColor: Colors.background,
         contentOptions: {

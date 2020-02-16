@@ -10,7 +10,13 @@ import {
 import { Colors } from '../config'
 import { Header, Left, Button, Icon, Body, Title } from 'native-base'
 import LocalTransformerUserList from '../components/LocalTransformerUserList'
-import { getLocalTransformerUsers, clearActualTransformerUsers } from '../actions/transformActivitiesActions'
+import { 
+    getLocalTransformerUsers, 
+    clearActualTransformerUsers,
+    clearActualNodeUsers,
+    getNodeUsers
+} from '../actions/transformActivitiesActions'
+import NodeUserList from '../components/NodeUserList'
 
 class NodeStakeOutScreen extends Component {
     constructor(props) {
@@ -44,6 +50,7 @@ class NodeStakeOutScreen extends Component {
                     <Left>
                         <Button transparent
                             onPress={() => {
+                                this.props.clearActualNodeUsers()
                                 this.props.navigation.navigate('StakeOut', {
                                     activity: activity
                                 })
@@ -83,6 +90,11 @@ class NodeStakeOutScreen extends Component {
                     <View style={styles.main__container}>
                         <Text style={styles.section__title}>Usuarios Cedenar</Text>
                         <View style={styles.list__wrapper}>
+                            <NodeUserList
+                                updateNodeUsers={() => {
+                                    this.props.getNodeUsers(node)
+                                }}
+                            />
                         </View>
                         <Text style={styles.section__title}>Usuarios Nuevos</Text>
                         <View style={styles.list__wrapper}>
@@ -183,7 +195,7 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = state => ({
-
+    transformActivities: state.transformActivities
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -192,6 +204,12 @@ const mapDispatchToProps = dispatch => ({
     },
     clearActualTransformerUsers: () => {
         dispatch(clearActualTransformerUsers())
+    },
+    clearActualNodeUsers: () => {
+        dispatch(clearActualNodeUsers())
+    },
+    getNodeUsers: (node) => {
+        dispatch(getNodeUsers(node))
     }
 })
 

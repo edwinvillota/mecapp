@@ -9,12 +9,13 @@ import {
 import {
     Button
 } from 'native-base'
-import { stakeoutLocalUser, clearActualStakeoutUser } from '../actions/transformActivitiesActions'
+import { stakeoutLocalUser, clearActualStakeoutUser, getNodeUsers } from '../actions/transformActivitiesActions'
 import TextField from '../components/TextField'
 import SelectField from '../components/SelectField'
 import LocationField from '../components/LocationField'
 import PhotoField from '../components/PhotoField'
 import { ScrollView } from 'react-native-gesture-handler'
+import Validator from '../clases/Validator'
 
 class UserStakeOutScreen extends Component {
     constructor(props) {
@@ -33,7 +34,15 @@ class UserStakeOutScreen extends Component {
                 active_lecture: '',
                 active_photo: '',
                 reactive_lecture: '',
-                reactive_photo: ''
+                reactive_photo: '',
+            },
+            errors: {
+                location: false,
+                user_photo: false,
+                active_lecture: false,
+                active_photo: false,
+                reactive_lecture: false,
+                reactive_photo: false
             }
         }
     }
@@ -52,8 +61,78 @@ class UserStakeOutScreen extends Component {
         })
     }
 
-    handleSave = () => {
+    handleValidate = () => {
+        const mode = this.props.navigation.getParam('mode')
 
+        if (mode === 'stakeout') {
+            const {
+                location,
+                user_photo,
+                active_lecture,
+                active_photo,
+                reactive_lecture,
+                reactive_photo
+            } = this.state.props
+
+            const v = new Validator()
+
+            const validLocation = v.validateLocation(location)
+            const validUserPhoto = v.validatePhoto(user_photo)
+            const validActiveLecture = v.validateLecture(active_lecture)
+            const validActivePhoto = v.validatePhoto(active_photo)
+            const validReactiveLecture = v.validateLecture(reactive_lecture)
+            const validReactivePhoto = v.validatePhoto(reactive_photo)
+            
+
+            this.setState({
+                errors: {
+                    location: !validLocation.isValid,
+                    user_photo: !validUserPhoto.isValid,
+                    active_lecture: !validActiveLecture.isValid,
+                    active_photo: !validActivePhoto.isValid,
+                    // reactive_lecture: !validReactiveLecture.isValid,
+                    // reactive_photo: !validReactivePhoto.isValid
+                }
+            })
+
+            const errValues = [
+                !validLocation.isValid,
+                !validUserPhoto.isValid,
+                !validActiveLecture.isValid,
+                !validActivePhoto.isValid
+            ]
+
+            const isValidInfo = errValues.includes(true)
+
+            if (!isValidInfo) {
+                const node = this.props.navigation.getParam('node')
+                const user = this.props.transformActivities.actual_stakeout_user
+                const newUser = {
+                    node: node,
+                    location: this.state.props.location,
+                    user_photo: user_photo,
+                    info: user
+                }
+
+                const newLecture = {
+                    user_id: user.id,
+                    active_lecture: active_lecture,
+                    reactive_lecture: reactive_lecture,
+                    active_photo: active_photo,
+                    reactive_photo: reactive_photo,
+                    activity_id: node.stakeout_id
+                }
+
+                this.handleSave(newUser, newLecture)
+            } 
+        }
+    }
+
+    handleSave = (user, lecture) => {
+        this.props.stakeoutLocalUser(user, lecture)
+        alert('Usuario guardado...')
+        this.props.getNodeUsers(user.node)
+        this.handleCancel()
     }
 
     handleCancel = () => {
@@ -86,7 +165,6 @@ class UserStakeOutScreen extends Component {
         const user = this.props.transformActivities.actual_stakeout_user
         const node = this.props.navigation.getParam('node')
         const mode = this.props.navigation.getParam('mode')
-        console.log(this.state.props)
         return (
             <ScrollView>
             <View style={styles.main__wrapper}>
@@ -162,46 +240,54 @@ class UserStakeOutScreen extends Component {
                     label='Ubicación GPS'
                     value={this.state.props.location}
                     handleChange={this.handleChange}
+                    error={this.state.errors.location}
                 />
                 <PhotoField 
                     name='user_photo'
                     label='Foto del predio'
                     value={this.state.props.user_photo}
                     handleChange={this.handleChange}
+                    error={this.state.errors.user_photo}
                     />
                 <Text style={styles.section__title}>Información de Lecturas</Text>
                 <TextField 
                     name='active_lecture' 
                     label='Lectura Activa' 
+                    preloadData={this.state.props.active_lecture}
                     placeholder='Lectura Activa...' 
                     keyboardType='numeric'
                     handleChange = {this.handleChange}
+                    error={this.state.errors.active_lecture}
                     />
                 <PhotoField 
                     name='active_photo'
                     label='Foto de Lectura Activa'
                     value={this.state.props.active_photo}
                     handleChange={this.handleChange}
+                    error={this.state.errors.active_photo}
                     />
                 <TextField 
                     name='reactive_lecture' 
-                    label='Lectura Reactiva' 
+                    label='Lectura Reactiva'
+                    preloadData={this.state.props.reactive_lecture}
                     placeholder='Lectura Reactiva...' 
                     keyboardType='numeric'
                     handleChange = {this.handleChange}
+                    error={this.state.errors.reactive_lecture}
                     />
                 <PhotoField 
                     name='reactive_photo'
                     label='Foto de Lectura Reactiva'
                     value={this.state.props.reactive_photo}
                     handleChange={this.handleChange}
+                    error={this.state.errors.reactive_photo}
                     />
                 <Text style={styles.section__title}>Acciones</Text>
                 <View style={styles.action__wrapper}>
                     <Button
                         full
                         style={[styles.action__button, styles.action__save]}
-                        onPress={this.handleSave}
+                        onPress={this.handleValidate}
                         >
                         <Text style={[styles.action__text]}>Guardar</Text>
                     </Button>
@@ -258,11 +344,14 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    stakeoutLocalUser: (user) => {
-        dispatch(stakeoutLocalUser(user))
+    stakeoutLocalUser: (user, lecture) => {
+        dispatch(stakeoutLocalUser(user, lecture))
     },
     clearActualStakeoutUser: () => {
         dispatch(clearActualStakeoutUser())
+    },
+    getNodeUsers: (node) => {
+        dispatch(getNodeUsers(node))
     }
 })
 

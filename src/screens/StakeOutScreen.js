@@ -9,7 +9,7 @@ import {
 import { Colors } from '../config'
 import { Header, Left, Button, Icon, Body, Title, Text} from 'native-base'
 import { addTransformerStakeOut, addStakeoutNode, delStakeoutNode, updateTransformerStakeOut, chargueTransformerStakeOut} from '../actions'
-import { addLocalActivity, loadStakeoutNodes } from '../actions/transformActivitiesActions'
+import { addLocalActivity, loadStakeoutNodes} from '../actions/transformActivitiesActions'
 import NodeList from '../components/NodeList'
 
 class StakeOutScreen extends Component {

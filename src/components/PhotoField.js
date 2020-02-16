@@ -48,7 +48,10 @@ class PhotoField extends Component {
     render () {
         const captured = this.props.value ? true : false
         return (
-            <View style={styles.main__wrapper}>
+            <View style={[
+                styles.main__wrapper,
+                this.props.error ? styles.error : null
+                ]}>
                 <Text style={styles.label}>{this.props.label}</Text>
                 <View style={styles.photo__wrapper}>
                     <Text style={styles.photo__text}>{captured ? this.props.value : 'Sin Capturar'}</Text>
@@ -158,6 +161,11 @@ const styles = StyleSheet.create({
     },
     action__preview: {
         color: '#44C1C1'
+    },
+    error: {
+        paddingLeft: 10,
+        borderLeftWidth: 5,
+        borderLeftColor: 'red'
     }
 })
 

@@ -10,7 +10,11 @@ import {
     SET_ACTUAL_TRANSFORMER_USERS,
     CLEAR_ACTUAL_TRANSFORMER_USERS,
     SET_ACTUAL_STAKEOUT_USER,
-    CLEAR_ACTUAL_STAKEOUT_USER
+    CLEAR_ACTUAL_STAKEOUT_USER,
+    SET_ACTUAL_NODE_USERS,
+    CLEAR_ACTUAL_NODE_USERS,
+    SET_ACTUAL_USER_LECTURES,
+    CLEAR_ACTUAL_USER_LECTURES
 } from '../types'
 import DB from '../sqlite/database'
 import moment from 'moment'
@@ -457,21 +461,19 @@ export const addLocalStakeoutNode = (node) => {
     }
 }
 
-export const stakeoutLocalUser = (stakeout_user) => {
+export const stakeoutLocalUser = (stakeout_user, lecture) => {
     return async (dispatch, getState) => {
         const db = new DB()
         await db._init()
-        
-        const location = `${stakeout_user.ubicacion.coords.latitude},${stakeout_user.ubicacion.coords.longitude}`
 
         try {
             const updateResults = await db.query(
-                'UPDATE Users SET node_id=?, location=?, activity_id=? WHERE id=?',
-                [stakeout_user.node.id, location, stakeout_user.node.stakeout_id, stakeout_user.info.id]
+                'UPDATE Users SET node_id=?, location=?, user_photo=?, activity_id=? WHERE id=?',
+                [stakeout_user.node.id, stakeout_user.location, stakeout_user.user_photo, stakeout_user.node.stakeout_id, stakeout_user.info.id]
             )
     
             if (updateResults.rows_affected > 0) {
-                console.log('La actualización se realizó')
+                dispatch(addLocalUserLecture(lecture))
             }
 
         } catch (e) {
@@ -493,3 +495,134 @@ export const clearActualStakeoutUser = () => {
     }
 }
 
+export const addLocalUserLecture = (l) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        try {
+            const insertResult = await db.query(
+                'INSERT INTO Lectures ' +
+                '(user_id, active_lecture, reactive_lecture, active_photo, reactive_photo, activity_id) ' +
+                'VALUES (?,?,?,?,?,?)',
+                [l.user_id,l.active_lecture,l.reactive_lecture,l.active_photo,l.reactive_photo,l.activity_id]
+            )
+
+            if (insertResult.rows_affected > 0) {
+                const event = new DatabaseEvent('Success', `Se crearon exitosamente las lecturas del usuario ${l.user_id}`)
+                dispatch(registerLogEvent(event))
+            } else {
+                const event = new DatabaseEvent('Error', `No se crearon las lecturas del usuario ${l.user_id}`)
+                dispatch(registerLogEvent(event))
+            }
+
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error con la base de datos al registrar lecturas del usuario ${l.user_id}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}
+
+export const getNodeUsers = (node) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        try {
+            const queryResults = await db.query(
+                'SELECT * FROM Users WHERE node_id=?',
+                [node.id]
+            )
+
+            if (queryResults.data.length > 0) {
+                const event = new DatabaseEvent('Success', `La consulta de usuarios del nodo ${node.number} fue exitosa`)
+                dispatch(registerLogEvent(event))
+                dispatch(setActualNodeUsers(queryResults.data))
+            } else {
+                const event = new DatabaseEvent('Warning', `No se encontraron usuarios en el nodo ${node.number}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error al consultar los usuarios del nodo ${node.number}`,e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}
+
+export const setActualNodeUsers = (users) => {
+    return {
+        type: SET_ACTUAL_NODE_USERS,
+        users
+    }
+}
+
+export const clearActualNodeUsers = () => {
+    return {
+        type: CLEAR_ACTUAL_NODE_USERS
+    }
+}
+
+export const getActualUserLectures = (user) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        try {
+            const queryResult = await db.query(
+                'SELECT * FROM Lectures WHERE user_id=?',
+                [user.id]
+            )
+
+            if (queryResult.data.length > 0) {
+                const event = new DatabaseEvent('Success', `Consulta de lecturas del usuario ${user.code} fue exitosa`)
+                dispatch(setActualUserLectures(queryResult.data))
+                dispatch(registerLogEvent(event))
+            } else {
+                const event = new DatabaseEvent('Warning', `No se encontraron lecturas para el usuarios ${user.code}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error al consultar lecturas del usuario ${user.code}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}
+
+export const setActualUserLectures = (lectures) => {
+    return {
+        type: SET_ACTUAL_USER_LECTURES,
+        lectures
+    }
+}
+
+export const clearActualUserLectures = () => {
+    return {
+        type: CLEAR_ACTUAL_USER_LECTURES
+    }
+}
+
+export const removeDatabaseLocalUser = (user) => {
+    return async (dispatch, getState) => {
+        if (user.origin == 'Database') {
+            const db = new DB()
+            await db._init()
+
+            const updateResults = await db.query(
+                'UPDATE Users SET node_id=?, location=?, user_photo=?, activity_id=? WHERE id=?',
+                [99, 'uncaptured', 'uncaptured', 'uncaptured', user.id]
+            )
+
+            if (updateResults.rows_affected > 0) {
+                const event = new DatabaseEvent('Success', `Se reseteo el usuario ${user.code}`)
+                dispatch(registerLogEvent(event))
+            } else {
+                const event = new DatabaseEvent('Warning', `El usuario ${user.code} no esta registrado`)
+                dispatch(registerLogEvent(event))
+            }
+
+        } else {
+            const event = new DatabaseEvent('Error', `No se puede eliminar el usuario ${user.code} por que es un usuario nuevo`)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}

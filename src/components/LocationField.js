@@ -34,8 +34,11 @@ class LocationField extends Component {
     render () {
         const captured = this.props.value ? true : false
         return (
-            <View style={styles.main__wrapper}>
-                <Text style={styles.label}>{this.props.label}</Text>
+            <View style={[
+                styles.main__wrapper,
+                this.props.error ? styles.error : null
+                ]}>
+                <Text style={[styles.label]}>{this.props.label}</Text>
                 <View style={[styles.location__wrapper, captured ? styles.load__location : null]}>
                     <Text style={styles.location__text}>
                         {captured ? this.props.value : 'Sin capturar'}
@@ -100,6 +103,11 @@ const styles = StyleSheet.create({
     },
     load__location: {
         borderColor: '#27B660'
+    },
+    error: {
+        paddingLeft: 10,
+        borderLeftWidth: 5,
+        borderLeftColor: 'red'
     }
 })
 
