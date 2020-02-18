@@ -4,12 +4,13 @@ import {
     AppRegistry,
     StyleSheet,
     View,
-    Text
+    Text,
+    Alert
 } from 'react-native'
 import {
     Button
 } from 'native-base'
-import { stakeoutLocalUser, clearActualStakeoutUser, getNodeUsers } from '../actions/transformActivitiesActions'
+import { stakeoutLocalUser, clearActualStakeoutUser, getNodeUsers, stakeoutNewLocalUser } from '../actions/transformActivitiesActions'
 import TextField from '../components/TextField'
 import SelectField from '../components/SelectField'
 import LocationField from '../components/LocationField'
@@ -37,6 +38,13 @@ class UserStakeOutScreen extends Component {
                 reactive_photo: '',
             },
             errors: {
+                user_type: false,
+                meter: false,
+                brand: false,
+                code: false,
+                address: false,
+                factor: false,
+                node: false,
                 location: false,
                 user_photo: false,
                 active_lecture: false,
@@ -125,15 +133,125 @@ class UserStakeOutScreen extends Component {
 
                 this.handleSave(newUser, newLecture)
             } 
+        } else if (mode === 'new') {
+            const {
+                user_type,
+                meter,
+                brand,
+                code,
+                address,
+                factor,
+                node,
+                location,
+                user_photo,
+                active_lecture,
+                active_photo,
+                reactive_lecture,
+                reactive_photo
+            } = this.state.props
+
+            const v = new Validator()
+
+            const validUserType = v.validateUserType(user_type)
+            const validMeter = v.validateMeter(meter)
+            const validBrand = v.validateNoEmpty(brand, 'Marca')
+            const validCode = v.validateNoEmpty(code, 'Código')
+            const validAddress = v.validateNoEmpty(address, 'Dirección')
+            const validFactor = v.validateNoEmpty(factor, 'Factor')
+            const validLocation = v.validateLocation(location)
+            const validUserPhoto = v.validatePhoto(user_photo)
+            const validActiveLecture = v.validateLecture(active_lecture)
+            const validActivePhoto = v.validatePhoto(active_photo)
+            const validReactiveLecture = v.validateLecture(reactive_lecture)
+            const validReactivePhoto = v.validatePhoto(reactive_photo)
+
+            this.setState({
+                errors: {
+                    user_type: !validUserType.isValid,
+                    meter: !validMeter.isValid,
+                    brand: !validBrand.isValid,
+                    code: !validCode.isValid,
+                    address: !validAddress.isValid,
+                    factor: !validFactor.isValid,
+                    location: !validLocation.isValid,
+                    user_photo: !validUserPhoto.isValid,
+                    active_lecture: !validActiveLecture.isValid,
+                    active_photo: !validActivePhoto.isValid,
+                    // reactive_lecture: !validReactiveLecture.isValid,
+                    // reactive_photo: !validReactivePhoto.isValid
+                }
+            })
+
+            const errValues = [
+                !validUserType.isValid,
+                !validMeter.isValid,
+                !validBrand.isValid,
+                !validCode.isValid,
+                !validAddress.isValid,
+                !validFactor.isValid,
+                !validLocation.isValid,
+                !validUserPhoto.isValid,
+                !validActiveLecture.isValid,
+                !validActivePhoto.isValid
+            ]
+
+            const isValidInfo = errValues.includes(true)
+
+            if(!isValidInfo) {
+                const node = this.props.navigation.getParam('node')
+                const newUser = {
+                    type: user_type,
+                    meter: meter,
+                    brand: brand,
+                    code: code,
+                    address: address,
+                    location: location,
+                    factor: factor,
+                    node: node,
+                    user_photo: user_photo,
+                    activity: this.props.navigation.getParam('activity')
+                }
+
+                const newLecture = {
+                    active_lecture: active_lecture,
+                    reactive_lecture: reactive_lecture,
+                    active_photo: active_photo,
+                    reactive_photo: reactive_photo,
+                    activity_id: node.stakeout_id
+                }
+
+                this.handleSave(newUser, newLecture)
+            } else {
+                console.log('No es Valido')
+            }
         }
     }
 
     handleSave = (user, lecture) => {
-        this.props.stakeoutLocalUser(user, lecture)
-        alert('Usuario guardado...')
+        const mode = this.props.navigation.getParam('mode')
+
+        if (mode === 'stakeout') {
+            this.props.stakeoutLocalUser(user, lecture)
+            Alert.alert(
+                'Exito',
+                'El usuario se guardo correctamente',
+                [
+                    {text: 'OK', onPress: () => this.handleCancel()}
+                ]
+            )
+        } else if (mode === 'new') {
+            this.props.stakeoutNewLocalUser(user, lecture)
+            Alert.alert(
+                'Exito',
+                'El usuario se guardo correctamente',
+                [
+                    {text: 'OK', onPress: () => this.handleCancel()}
+                ]
+            )
+        }
         this.props.getNodeUsers(user.node)
-        this.handleCancel()
     }
+
 
     handleCancel = () => {
         this.props.clearActualStakeoutUser()
@@ -172,67 +290,73 @@ class UserStakeOutScreen extends Component {
                 <SelectField 
                     name='user_type'
                     label='Tipo de Usuario'
-                    preloadData={(mode === 'stakeout') ? `${user.type}` : false}
+                    preloadData={(mode === 'stakeout') ? `${user.type}` : this.state.props.user_type}
                     handleChange={this.handleChange}
                     options={[
                         {label: 'Normal', value: 'Normal'},
                         {label: 'Destacado', value: 'Outstanding'},
                     ]}
                     disable={mode === 'stakeout'}
+                    error={this.state.errors.user_type}
                     />
                 <TextField 
                     name='meter' 
                     label='Medidor'
-                    preloadData={(mode === 'stakeout') ? `${user.meter}` : false}
+                    preloadData={(mode === 'stakeout') ? `${user.meter}` : this.state.props.meter}
                     placeholder='Serial medidor...' 
                     keyboardType='numeric'
                     handleChange = {this.handleChange}
                     disable={mode === 'stakeout'}
+                    error={this.state.errors.meter}
                     />
                 <TextField 
                     name='brand' 
                     label='Marca' 
-                    preloadData={(mode === 'stakeout') ? user.brand : false}
+                    preloadData={(mode === 'stakeout') ? user.brand : this.state.props.brand}
                     placeholder='Marca medidor...' 
                     keyboardType='default'
                     handleChange = {this.handleChange}
                     disable={mode === 'stakeout'}
+                    error={this.state.errors.brand}
                     />
                 <TextField 
                     name='code' 
                     label='Código Interno' 
-                    preloadData={(mode === 'stakeout') ? `${user.code}` : false}
+                    preloadData={(mode === 'stakeout') ? `${user.code}` : this.state.props.code}
                     placeholder='Código Interno...' 
                     keyboardType='numeric'
                     handleChange = {this.handleChange}
                     disable={mode === 'stakeout'}
+                    error={this.state.errors.code}
                     />    
                 <TextField 
                     name='address' 
                     label='Dirección' 
-                    preloadData={(mode === 'stakeout') ? `${user.address}` : false}
+                    preloadData={(mode === 'stakeout') ? `${user.address}` : this.state.props.address}
                     placeholder='Dirección...' 
                     keyboardType='default'
                     handleChange = {this.handleChange}
                     disable={mode === 'stakeout'}
+                    error={this.state.errors.address}
                     />                   
                 <TextField 
                     name='factor' 
                     label='Factor de Conversión' 
-                    preloadData={(mode === 'stakeout') ? `${user.factor}` : false}
+                    preloadData={(mode === 'stakeout') ? `${user.factor}` : this.state.props.factor}
                     placeholder='Factor de Conversión...' 
                     keyboardType='numeric'
                     handleChange = {this.handleChange}
                     disable={mode === 'stakeout'}
+                    error={this.state.errors.factor}
                     />
                 <TextField 
                     name='node' 
                     label='Nodo'
-                    preloadData={(mode === 'stakeout') ? `${node.number}` : false}
+                    preloadData={`${node.number}`}
                     placeholder='Nodo...' 
                     keyboardType='numeric'
                     handleChange = {this.handleChange}
-                    disable={mode === 'stakeout'}
+                    disable={true}
                     />
                 <Text style={styles.section__title}>Información de Campo</Text>
                 <LocationField 
@@ -352,6 +476,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getNodeUsers: (node) => {
         dispatch(getNodeUsers(node))
+    },
+    stakeoutNewLocalUser: (user, lecture) => {
+        dispatch(stakeoutNewLocalUser(user, lecture))
     }
 })
 

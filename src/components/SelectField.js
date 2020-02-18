@@ -31,12 +31,16 @@ class SelectField extends Component {
 
     render () {
         return (
-            <View style={styles.main__wrapper}>
+            <View style={[
+                styles.main__wrapper,
+                this.props.error ? styles.error : null
+                ]}>
                 <Text style={styles.label}>{this.props.label}</Text>
                 <View style={styles.picker__wrapper}>
                     <Picker
                         enabled={!this.props.disable}
                         style={styles.picker}
+                        selectedValue={this.props.preloadData ? this.props.preloadData : 'Normal'}
                         value={this.props.preloadData ? this.props.preloadData : ''}
                         onValueChange={(itemValue, itemIndex) => this.handleChange(itemValue, itemIndex)}
                         >
@@ -74,6 +78,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         width: '100%',
         color: 'black'
+    },
+    error: {
+        paddingLeft: 10,
+        borderLeftWidth: 5,
+        borderLeftColor: 'red'
     }
 })
 

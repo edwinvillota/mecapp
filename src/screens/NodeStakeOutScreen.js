@@ -14,7 +14,8 @@ import {
     getLocalTransformerUsers, 
     clearActualTransformerUsers,
     clearActualNodeUsers,
-    getNodeUsers
+    getNodeUsers,
+    clearActualStakeoutUser
 } from '../actions/transformActivitiesActions'
 import NodeUserList from '../components/NodeUserList'
 
@@ -119,6 +120,14 @@ class NodeStakeOutScreen extends Component {
                             </Button>
                             <Button 
                                 style={[styles.action__button, styles.newUser__button]}
+                                onPress={() => {
+                                    this.props.clearActualStakeoutUser()
+                                    this.props.navigation.navigate('UserStakeOut', {
+                                        activity: activity,
+                                        node: node,
+                                        mode: 'new'
+                                    })
+                                }}
                                 >
                                 <Text style={styles.action__text}>Usuario Nuevo</Text>
                             </Button>
@@ -210,6 +219,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getNodeUsers: (node) => {
         dispatch(getNodeUsers(node))
+    },
+    clearActualStakeoutUser: () => {
+        dispatch(clearActualStakeoutUser())
     }
 })
 

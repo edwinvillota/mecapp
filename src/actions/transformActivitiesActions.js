@@ -626,3 +626,48 @@ export const removeDatabaseLocalUser = (user) => {
         }
     }
 }
+
+export const stakeoutNewLocalUser = (user, lecture) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        const insertResult = await db.query(
+            'INSERT INTO Users ' + 
+            '(type, meter, brand, code, address, location, factor, node_id, transformer_id, user_photo, origin, creation_date, activity_id)' +
+            'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            [
+                user.type,
+                user.meter,
+                user.brand,
+                user.code,
+                user.address,
+                user.location,
+                user.factor,
+                user.node.id,
+                user.activity.transformer_id,
+                user.user_photo,
+                'New',
+                moment().unix(),
+                user.node.stakeout_id
+            ]
+        )
+
+        if (insertResult.rows_affected > 0) {
+            const queryResult = await db.query(
+                'SELECT id FROM Users WHERE meter=? AND code=?',
+                [user.meter, user.code]
+            )
+
+            if (queryResult.data.length === 1) {
+                const user = queryResult.data[0]
+                lecture.user_id = user.id
+                dispatch(addLocalUserLecture(lecture))
+            } else if (queryResult.data.length > 1) {
+
+            } 
+        } else {
+
+        }
+    }
+}

@@ -133,7 +133,8 @@ class Node extends Component {
     }
 
     render () {
-        const { node, activity } = this.props
+        const { node } = this.props
+        const activity = this.props.navigation.getParam('activity')
         return (
             <View style={nodeStyles.main__wrapper}> 
                 <View style={nodeStyles.number__wrapper}>

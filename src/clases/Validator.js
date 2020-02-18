@@ -12,6 +12,46 @@ class Validator {
           )
     }
 
+    validateNoEmpty(value, propname) {
+        if(Validator.isEmpty(value)) {
+            return {
+                isValid: false,
+                error: `El valor de ${propname} no puede estar vacio`
+            }
+        } else {
+            return {
+                isValid: true
+            }
+        }
+    }
+
+    validateUserType(user_type) {
+        if (Validator.isEmpty(user_type)) {
+            return {
+                isValid: false,
+                error: 'Tipo de usuario invalido'
+            }
+        } else {
+            return {
+                isValid: true
+            }
+        }
+    }
+
+    validateMeter(meter) {
+        if (Validator.isEmpty(meter)) {
+            return {
+                isValid: false,
+                error: 'El serial del medidor esta Vacio'
+            }
+        } else {
+            return {
+                isValid: true
+            }
+        }
+    }
+
+
     validateLocation(location) {
         if (Validator.isEmpty(location)) {
             return {
