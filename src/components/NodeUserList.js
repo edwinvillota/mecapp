@@ -10,13 +10,15 @@ import {
 import {
     Text,
     Button,
-    Icon
+    Icon,
+    Spinner
 } from 'native-base'
 import LocalUserView from '../components/LocalUserView'
 import {
     getActualUserLectures,
     clearActualUserLectures,
-    removeDatabaseLocalUser
+    removeDatabaseLocalUser,
+    deleteNewLocalUser
 } from '../actions/transformActivitiesActions'
 
 class NodeUserList extends Component {
@@ -43,9 +45,9 @@ class NodeUserList extends Component {
             [
                 {text: 'SI', onPress: () => {
                     if (user.origin === 'Database') {
-                        this.props.removeDatabaseLocalUser(user)
-                        this.props.updateNodeUsers()
-                    } else {
+                        this.props.removeDatabaseLocalUser(user, this.props.node)
+                    } else if (user.origin === 'New') {
+                        this.props.deleteNewLocalUser(user, this.props.node)
                     }
                 }},
                 {text: 'NO', onPress: () => {
@@ -53,20 +55,52 @@ class NodeUserList extends Component {
                 }}
             ]
         )
+        
     }
 
-    _renderItems = () => {
+    _renderDatabaseItems = () => {
         const { actual_node_users } = this.props.transformActivities
 
-        return actual_node_users.map((u, key) => (
-            <UserItem 
-                key={key} 
-                user={u}
-                handleView={this.handleChangeViewUser}
-                handleRemoveUser={this.handleRemoveUser}
-                getActualUserLectures={this.props.getActualUserLectures}
-                />
-        ))
+        const filterUsers = actual_node_users.filter(u => u.origin === 'Database') 
+
+        if (filterUsers.length > 0) {
+            return filterUsers.map((u, key) => (
+                <UserItem 
+                    key={key} 
+                    user={u}
+                    handleView={this.handleChangeViewUser}
+                    handleRemoveUser={this.handleRemoveUser}
+                    getActualUserLectures={this.props.getActualUserLectures}
+                    />
+            ))
+        } else {
+            return (
+                <Text style={{fontSize: 11}}>No se han levantado usuarios de la base de datos</Text>
+            )
+        }
+
+    }
+
+    _renderNewItems = () => {
+        const { actual_node_users } = this.props.transformActivities
+
+        const filterUsers = actual_node_users.filter(u => u.origin === 'New')
+
+        if (filterUsers.length > 0) {
+            return filterUsers.map((u, key) => (
+                <UserItem 
+                    key={key} 
+                    user={u}
+                    handleView={this.handleChangeViewUser}
+                    handleRemoveUser={this.handleRemoveUser}
+                    getActualUserLectures={this.props.getActualUserLectures}
+                    />
+            ))
+        } else {
+            return (
+                <Text style={{fontSize: 11}}>No se han levantado usuarios nuevos</Text>
+            )
+        }
     }
 
     render() {
@@ -94,10 +128,17 @@ class NodeUserList extends Component {
                             />
                     </ScrollView>
                 </Modal>
+                <Text style={styles.section__title}>Usuarios Cedenar</Text>
                 {
                     actual_node_users_loaded 
-                    ? (this._renderItems())
-                    : (<Text>No hay nodos cargados</Text>) 
+                    ? (this._renderDatabaseItems())
+                    : (<Text style={{fontSize: 11}}>No se han levantado usuarios de la base de datos</Text>) 
+                }
+                <Text style={[styles.section__title, {marginTop: 10}]}>Usuarios Nuevos</Text>
+                {
+                    actual_node_users_loaded 
+                    ? (this._renderNewItems())
+                    : (<Text style={{fontSize: 11}}>No se han levantado usuarios nuevos</Text>) 
                 }
             </View>
         )
@@ -247,7 +288,11 @@ const userStyles = StyleSheet.create({
 const styles = StyleSheet.create({
     main__wrapper: {
         display: 'flex'
-    }
+    },
+    section__title: {
+        fontSize: 16,
+        marginBottom: 15
+    },
 })
 
 const mapStateToProps = state => ({
@@ -261,9 +306,13 @@ const mapDispatchToProps = dispatch => ({
     clearActualUserLectures: () => {
         dispatch(clearActualUserLectures())
     },
-    removeDatabaseLocalUser: (user) => {
-        dispatch(removeDatabaseLocalUser(user))
-    }
+    removeDatabaseLocalUser: (user, node) => {
+        dispatch(removeDatabaseLocalUser(user, node))
+    },
+    deleteNewLocalUser: (user, node) => {
+        dispatch(deleteNewLocalUser(user, node))
+    },
+
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NodeUserList)

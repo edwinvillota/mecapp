@@ -53,6 +53,7 @@ class LocalTransformerUserList extends Component {
             users = filterUsers
         } else {
             users = this.props.transformActivities.actual_transformer_users
+            users = users.filter(u => u.origin === 'Database')
         }
 
         return users.map((u, i) => (

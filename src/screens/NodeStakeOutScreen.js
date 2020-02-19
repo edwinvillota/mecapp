@@ -89,17 +89,11 @@ class NodeStakeOutScreen extends Component {
                 </Modal>
                 <ScrollView>
                     <View style={styles.main__container}>
-                        <Text style={styles.section__title}>Usuarios Cedenar</Text>
+                        <Text style={styles.section__title}>Usuarios Levantados</Text>
                         <View style={styles.list__wrapper}>
                             <NodeUserList
-                                updateNodeUsers={() => {
-                                    this.props.getNodeUsers(node)
-                                }}
-                            />
-                        </View>
-                        <Text style={styles.section__title}>Usuarios Nuevos</Text>
-                        <View style={styles.list__wrapper}>
-
+                                node={node}
+                                />
                         </View>
                         <Text style={styles.section__title}>Otras Cargas</Text>
                         <View style={styles.list__wrapper}>

@@ -528,6 +528,8 @@ export const getNodeUsers = (node) => {
         const db = new DB()
         await db._init()
 
+        dispatch(clearActualNodeUsers())
+
         try {
             const queryResults = await db.query(
                 'SELECT * FROM Users WHERE node_id=?',
@@ -601,7 +603,7 @@ export const clearActualUserLectures = () => {
     }
 }
 
-export const removeDatabaseLocalUser = (user) => {
+export const removeDatabaseLocalUser = (user, node) => {
     return async (dispatch, getState) => {
         if (user.origin == 'Database') {
             const db = new DB()
@@ -615,6 +617,7 @@ export const removeDatabaseLocalUser = (user) => {
             if (updateResults.rows_affected > 0) {
                 const event = new DatabaseEvent('Success', `Se reseteo el usuario ${user.code}`)
                 dispatch(registerLogEvent(event))
+                dispatch(getNodeUsers(node))
             } else {
                 const event = new DatabaseEvent('Warning', `El usuario ${user.code} no esta registrado`)
                 dispatch(registerLogEvent(event))
@@ -671,3 +674,44 @@ export const stakeoutNewLocalUser = (user, lecture) => {
         }
     }
 }
+
+export const deleteNewLocalUser = (user, node) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        console.log(user)
+        try {
+            const deleteUserResult = await db.query(
+                'DELETE FROM Users WHERE id=?',
+                [user.id]
+            )
+
+            if (deleteUserResult.rows_affected > 0) {
+                const event = new DatabaseEvent('Success', `Se elimino correctamente el usuario ${user.code}`)
+                dispatch(registerLogEvent(event))
+    
+                const deleteLecturesResult = await db.query(
+                    'DELETE FROM Lectures WHERE user_id=?',
+                    [user.id]
+                )
+    
+                if (deleteLecturesResult.rows_affected > 0) {
+                    const event = new DatabaseEvent('Success', `Se eliminaron correctamente las lecturas del usuario ${user.code}`)
+                    dispatch(registerLogEvent(event))
+                    dispatch(getNodeUsers(node))
+                } else {
+                    const event = new DatabaseEvent('Error', `No se encontraro lecturas registradas para el usuario ${user.code}`)
+                    dispatch(registerLogEvent(event))
+                }
+    
+            } else {
+                const event = new DatabaseEvent('Error', `No se encontraron registros del usuario ${user.code}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error con la base de datos al eliminar el usuario ${user.code}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+} 
