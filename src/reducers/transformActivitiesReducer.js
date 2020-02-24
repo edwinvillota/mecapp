@@ -15,7 +15,9 @@ import {
     SET_ACTUAL_NODE_USERS,
     CLEAR_ACTUAL_NODE_USERS,
     SET_ACTUAL_USER_LECTURES,
-    CLEAR_ACTUAL_USER_LECTURES
+    CLEAR_ACTUAL_USER_LECTURES,
+    SET_ACTUAL_NODE_OCS,
+    CLEAR_ACTUAL_NODE_OCS
 } from '../types'
 
 const initialState = {
@@ -35,7 +37,9 @@ const initialState = {
     actual_node_users_loaded: false,
     actual_node_users: [],
     actual_user_lectures_loaded: false,
-    actual_user_lectures: []
+    actual_user_lectures: [],
+    actual_node_ocs_loaded: false,
+    actual_node_ocs: []
 }
 
 export default transformActivitiesReducer = (state = initialState, action) => {
@@ -136,6 +140,18 @@ export default transformActivitiesReducer = (state = initialState, action) => {
                 ...state,
                 actual_node_users_loaded: false,
                 actual_user_lectures: []
+            }
+        case SET_ACTUAL_NODE_OCS:
+            return {
+                ...state,
+                actual_node_ocs_loaded: true,
+                actual_node_ocs: action.newOcs
+            }
+        case CLEAR_ACTUAL_NODE_OCS:
+            return {
+                ...state,
+                actual_node_ocs_loaded: false,
+                actual_node_ocs: []
             }
         default: 
             return state

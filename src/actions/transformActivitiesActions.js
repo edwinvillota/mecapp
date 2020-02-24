@@ -14,7 +14,9 @@ import {
     SET_ACTUAL_NODE_USERS,
     CLEAR_ACTUAL_NODE_USERS,
     SET_ACTUAL_USER_LECTURES,
-    CLEAR_ACTUAL_USER_LECTURES
+    CLEAR_ACTUAL_USER_LECTURES,
+    SET_ACTUAL_NODE_OCS,
+    CLEAR_ACTUAL_NODE_OCS
 } from '../types'
 import DB from '../sqlite/database'
 import moment from 'moment'
@@ -715,3 +717,79 @@ export const deleteNewLocalUser = (user, node) => {
         }
     }
 } 
+
+export const stakeoutOtherChargue = (oc) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init
+
+        try {
+            const insertResults = await db.query(
+                'INSERT INTO Other_Chargues ' +
+                '(type, location, photo, power, comment, node_id, activity_id, transformer_id, creation_date) ' +
+                'VALUES (?,?,?,?,?,?,?,?,?)',
+                [
+                    oc.type,
+                    oc.location,
+                    oc.oc_photo,
+                    oc.power,
+                    oc.comment,
+                    oc.node.id,
+                    oc.node.stakeout_id,
+                    oc.activity.transformer_id,
+                    moment().unix()
+                ]
+            )
+    
+            if (insertResults.rows_affected.length > 0) {
+                const event = new DatabaseEvent('Success', `Se creo correctamente la carga de tipo${oc.type}`)
+                dispatch(registerLogEvent(event))
+            } else {
+                const event = new DatabaseEvent('Error', `No se pudo registrar la carga de tipo ${oc.type}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error con la base de datos al registrar la carga de tipo ${oc.type}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}
+
+export const getNodeOCS = (node) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        try {
+            const queryResult = await db.query(
+                'SELECT * FROM Other_Chargues WHERE node_id=?',
+                [node.id]
+            )
+
+            if (queryResult.data.length > 0) {
+                const event = new DatabaseEvent('Success', `Se obtuvieron correctamente las otras cargas del nodo ${node.number}`)
+                dispatch(registerLogEvent(event))
+                dispatch(setActualNodeOCS(queryResult.data))
+            } else {
+                const event = new DatabaseEvent('Warning', `No se encontraron cargas asociadas al nodo ${node.number}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error con la base de datos al consultar las otras cargas del nodo ${node.number}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}
+
+export const setActualNodeOCS = (ocs) => {
+    return {
+        type: SET_ACTUAL_NODE_OCS,
+        newOcs: ocs
+    }
+}
+
+export const clearActualNodeOCS = () => {
+    return {
+        type: CLEAR_ACTUAL_NODE_OCS
+    }
+}

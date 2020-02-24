@@ -27,6 +27,10 @@ class PhotoField extends Component {
 
         const options = {
             title: 'Capturar Fotografía',
+            noData: true,
+            maxWidth: 800,
+            maxHeight: 600,
+            quality: 0.8,
             storageOptions: {
                 skipBackup: true,
                 path: 'images'
@@ -85,7 +89,7 @@ class PhotoField extends Component {
                 </View>
                 <Modal  
                     animationType='fade'
-                    transparent={true}
+                    transparent={false}
                     visible={this.state.previewVisible}
                     onRequestClose={() => {
                         this.setState({
@@ -93,11 +97,13 @@ class PhotoField extends Component {
                         })
                     }}
                     >
-                        <View>
-                            <Image 
-                                source={{uri: this.state.value}}
-                                style={{height: '100%'}}
-                            />
+                        <View style={styles.modal__wrapper}>
+                            <View style={styles.image__wrapper}>
+                                <Image 
+                                    source={{uri: this.state.value}}
+                                    style={styles.image}
+                                />
+                            </View>
                         </View>
                 </Modal>
             </View>
@@ -166,6 +172,21 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         borderLeftWidth: 5,
         borderLeftColor: 'red'
+    },
+    modal__wrapper: {
+        display: 'flex',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'black'
+    },
+    image__wrapper: {
+        display:'flex',
+        height: 250,
+        width: '100%'
+    },
+    image: {
+        height: '100%'
     }
 })
 

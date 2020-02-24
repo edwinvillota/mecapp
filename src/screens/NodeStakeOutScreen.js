@@ -18,6 +18,7 @@ import {
     clearActualStakeoutUser
 } from '../actions/transformActivitiesActions'
 import NodeUserList from '../components/NodeUserList'
+import NodeOCSList from '../components/NodeOCSList'
 
 class NodeStakeOutScreen extends Component {
     constructor(props) {
@@ -97,7 +98,9 @@ class NodeStakeOutScreen extends Component {
                         </View>
                         <Text style={styles.section__title}>Otras Cargas</Text>
                         <View style={styles.list__wrapper}>
-
+                            <NodeOCSList 
+                                node={node}
+                                />
                         </View>
                         <Text style={styles.section__title}>Acciones</Text>
                         <View style={styles.action__wrapper}>
@@ -127,6 +130,12 @@ class NodeStakeOutScreen extends Component {
                             </Button>
                             <Button 
                                 style={[styles.action__button, styles.oc__button]}
+                                onPress={() => {
+                                    this.props.navigation.navigate('OtherChargueStakeOut', {
+                                        activity: activity,
+                                        node: node
+                                    })
+                                }}
                                 >
                                 <Text style={styles.action__text}>Otras Cargas</Text>
                             </Button>

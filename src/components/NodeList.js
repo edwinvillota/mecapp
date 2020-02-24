@@ -13,7 +13,8 @@ import {
 import NewNodeModal from './NewNode'
 import {
     addLocalStakeoutNode,
-    getNodeUsers
+    getNodeUsers,
+    getNodeOCS
 } from '../actions/transformActivitiesActions'
 
 class NodeList extends Component {
@@ -29,6 +30,7 @@ class NodeList extends Component {
                     addLocalStakeoutNode={this.props.addLocalStakeoutNode}
                     navigation={this.props.navigation}
                     getNodeUsers={this.props.getNodeUsers}
+                    getNodeOCS={this.props.getNodeOCS}
                     />
             </View>
         )
@@ -67,7 +69,14 @@ class CreateNode extends Component {
 
         if (actual_nodes_loaded && actual_nodes.length > 0) {
             const compNodes = actual_nodes.map((node, i) => (
-                <Node key={i} node={node} activity={actual_activity} navigation={this.props.navigation} getNodeUsers={this.props.getNodeUsers}/>
+                <Node 
+                    key={i} 
+                    node={node} 
+                    activity={actual_activity} 
+                    navigation={this.props.navigation} 
+                    getNodeUsers={this.props.getNodeUsers}
+                    getNodeOCS={this.props.getNodeOCS}
+                    />
             ))
             
             return compNodes
@@ -165,6 +174,7 @@ class Node extends Component {
                         icon
                         onPress={() => {
                             this.props.getNodeUsers(node)
+                            this.props.getNodeOCS(node)
                             this.props.navigation.navigate('NodeStakeOut', {
                                 node: node,
                                 activity: activity
@@ -275,6 +285,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getNodeUsers: (node) => {
         dispatch(getNodeUsers(node))
+    },
+    getNodeOCS: (node) => {
+        dispatch(getNodeOCS(node))
     }
 })
 

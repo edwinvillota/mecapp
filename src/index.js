@@ -16,6 +16,7 @@ import StakeOutScreen from './screens/StakeOutScreen'
 import NodeStakeOutScreen from './screens/NodeStakeOutScreen'
 import UserStakeOutScreen from './screens/UserStakeOutScreen'
 import ConfigScreen from './screens/ConfigScreen'
+import OtherChargueStakeOutScreen from './screens/OtherChargueStakeOutScreen'
 
 const AuthStack = createStackNavigator({
     Login: LoginScreen
@@ -31,6 +32,7 @@ const AppNavigator = createDrawerNavigator(
         StakeOut: StakeOutScreen,
         NodeStakeOut: NodeStakeOutScreen,
         UserStakeOut: UserStakeOutScreen,
+        OtherChargueStakeOut: OtherChargueStakeOutScreen,
         Config: ConfigScreen,
         About: AboutScreen,
         Logout: LogoutScreen
