@@ -75,10 +75,10 @@ class LocalTransformerUserList extends Component {
                 <View style={styles.actions__wrapper}>
                     <Button
                         icon
-                        disabled={(u.node_id !== 99 && u.node_id !== 98)}
+                        disabled={(u.node_id !== 99 || u.node_id === 98)}
                         style={[
                             styles.action__button,
-                            (u.node_id !== 99 && u.node_id !== 98) ? styles.action__disable : {backgroundColor: '#C75959'},
+                            (u.node_id !== 99 || u.node_id === 98) ? styles.action__disable : {backgroundColor: '#C75959'},
                         ]}
                         onPress={() => {
                             this.props.handleCloseSearchModal()

@@ -17,7 +17,11 @@ import {
     SET_ACTUAL_USER_LECTURES,
     CLEAR_ACTUAL_USER_LECTURES,
     SET_ACTUAL_NODE_OCS,
-    CLEAR_ACTUAL_NODE_OCS
+    CLEAR_ACTUAL_NODE_OCS,
+    SET_ACTUAL_ACTIVITY_BADLINKS,
+    CLEAR_ACTUAL_ACTIVITY_BADLINKS,
+    SET_ACTUAL_STAKEOUT_PROGRESS,
+    CLEAR_ACTUAL_STAKEOUT_PROGRESS
 } from '../types'
 
 const initialState = {
@@ -39,7 +43,11 @@ const initialState = {
     actual_user_lectures_loaded: false,
     actual_user_lectures: [],
     actual_node_ocs_loaded: false,
-    actual_node_ocs: []
+    actual_node_ocs: [],
+    actual_activity_badlinks_loaded: false,
+    actual_activity_badlinks: [],
+    actual_stakeout_progress_loaded: false,
+    actual_stakeout_progress: {}
 }
 
 export default transformActivitiesReducer = (state = initialState, action) => {
@@ -152,6 +160,30 @@ export default transformActivitiesReducer = (state = initialState, action) => {
                 ...state,
                 actual_node_ocs_loaded: false,
                 actual_node_ocs: []
+            }
+        case SET_ACTUAL_ACTIVITY_BADLINKS: 
+            return {
+                ...state,
+                actual_activity_badlinks_loaded: true,
+                actual_activity_badlinks: action.newBadlinks
+            }
+        case CLEAR_ACTUAL_ACTIVITY_BADLINKS:
+            return {
+                ...state,
+                actual_activity_badlinks_loaded: false,
+                actual_activity_badlinks: []
+            }
+        case SET_ACTUAL_STAKEOUT_PROGRESS:
+            return {
+                ...state,
+                actual_stakeout_progress_loaded: true,
+                actual_stakeout_progress: action.progress
+            }
+        case CLEAR_ACTUAL_STAKEOUT_PROGRESS:
+            return {
+                ...state,
+                actual_stakeout_progress_loaded: false,
+                actual_stakeout_progress: {}
             }
         default: 
             return state

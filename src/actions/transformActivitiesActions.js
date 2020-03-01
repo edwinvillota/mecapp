@@ -16,7 +16,11 @@ import {
     SET_ACTUAL_USER_LECTURES,
     CLEAR_ACTUAL_USER_LECTURES,
     SET_ACTUAL_NODE_OCS,
-    CLEAR_ACTUAL_NODE_OCS
+    CLEAR_ACTUAL_NODE_OCS,
+    SET_ACTUAL_ACTIVITY_BADLINKS,
+    CLEAR_ACTUAL_ACTIVITY_BADLINKS,
+    SET_ACTUAL_STAKEOUT_PROGRESS,
+    CLEAR_ACTUAL_STAKEOUT_PROGRESS
 } from '../types'
 import DB from '../sqlite/database'
 import moment from 'moment'
@@ -445,7 +449,7 @@ export const addLocalStakeoutNode = (node) => {
                 'INSERT INTO Nodes ' +
                 '(number, location, parent_node, stakeout_id) ' +
                 'VALUES (?,?,?,?)',
-                [node.number, node.location, node.parent_node, node.stakeout_id]
+                [node.number, node.location, node.parent_node, activity.id]
             )
     
             if (resultsInsert.rows_affected > 0) {
@@ -820,3 +824,238 @@ export const clearActualNodeOCS = () => {
         type: CLEAR_ACTUAL_NODE_OCS
     }
 }
+
+export const addBadlink = (bl) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        try {
+            let insertResult 
+            if (bl.type === 'bad_link') {
+                insertResult = await db.query(
+                    'INSERT INTO BadLinks ' +
+                    '(type, user_id, location, photo, new_transformer, activity_id, creation_date, new_transformer_photo, meter_photo) ' +
+                    'VALUES (?,?,?,?,?,?,?,?,?)',
+                    [
+                        bl.type,
+                        bl.user.id,
+                        bl.location,
+                        bl.photo,
+                        bl.new_transformer,
+                        bl.activity._id,
+                        moment().unix(),
+                        bl.new_transformer_photo,
+                        bl.meter_photo
+                    ]
+                )
+            } else if (bl.type === 'not_found') {
+                insertResult = await db.query(
+                    'INSERT INTO BadLinks ' +
+                    '(type, user_id, activity_id, creation_date)' +
+                    'VALUES (?,?,?,?)',
+                    [
+                        bl.type,
+                        bl.user.id,
+                        bl.activity._id,
+                        moment().unix()
+                    ]
+                )
+            }
+
+            if (insertResult.rows_affected > 0) {
+                const event = new DatabaseEvent('Success', `Se registro correctamente el mal vinculo para el usuario ${bl.user.code} `)
+                dispatch(registerLogEvent(event))
+
+                const updateUserState = await db.query(
+                    'UPDATE Users SET node_id=? WHERE id=?',
+                    [98, bl.user.id]
+                )
+                
+                if (updateUserState.rows_affected > 0) {
+                    const event = new DatabaseEvent('Success', `Se actualizó el estado del usuario ${bl.user.code}`)
+                    dispatch(registerLogEvent(event))
+                } else {
+                    const event = new DatabaseEvent('Error', `No se actualizó el estado del usuario ${bl.user.code}`)
+                    dispatch(registerLogEvent(event))
+                }
+
+            } else {
+                const event = new DatabaseEvent('Error', `No se registro correctamente el mal vinculo para el usuario ${bl.user.code}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error con la base de datos al registrar el mal vinculo para el usuario ${bl.user.code}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+} 
+
+export const getBadlinks = (activity) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+        dispatch(clearActualActivityBadlinks())
+        try {
+            const queryResult = await db.query(
+                'SELECT Badlinks.id,BadLinks.user_id,BadLinks.type,BadLinks.new_transformer,Users.meter ' +
+                'FROM BadLinks ' +
+                'INNER JOIN Users ' + 
+                'ON BadLinks.user_id=Users.id ' +
+                'WHERE BadLinks.activity_id=?',
+                [activity._id]
+            )
+
+            if (queryResult.data.length > 0) {
+                dispatch(setActualActivityBadlinks(queryResult.data))
+                const event = new DatabaseEvent('Success' , `Se obtuvieron correctamente los errores de vinculo de la actividad ${activity._id}`)
+                dispatch(registerLogEvent(event))
+            } else {
+                const event = new DatabaseEvent('Warning' , `No se encontraron errores de vinculo para la actividad ${activity._id}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error' , `Error con la base de datos al consultar los errores de vinculo de la actividad: ${activity._id}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}
+
+export const setActualActivityBadlinks = (badlinks) => {
+    return {
+        type: SET_ACTUAL_ACTIVITY_BADLINKS,
+        newBadlinks: badlinks
+    }
+}
+
+export const clearActualActivityBadlinks = () => {
+    return {
+        type: CLEAR_ACTUAL_ACTIVITY_BADLINKS
+    }
+}
+
+export const deleteBadlink = (bl, activity) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+        try {
+            const deleteResult = await db.query(
+                'DELETE FROM BadLinks WHERE id=?',
+                [bl.id]
+            )
+
+            if (deleteResult.rows_affected > 0) {
+                const event = new DatabaseEvent('Success', `Se elimino correctamente el error de vinculo del medidor ${bl.meter}`)
+                dispatch(registerLogEvent(event))
+                const updateResult = await db.query(
+                    'UPDATE Users SET node_id=? WHERE id=?',
+                    [99, bl.user_id]
+                )
+
+                if (updateResult.rows_affected > 0) {
+                    const event = new DatabaseEvent('Success', `Se actualizo el estado del medidor ${bl.meter}`)
+                    dispatch(registerLogEvent(event))
+                    console.log(event)
+                    dispatch(getBadlinks(activity))
+                } else {
+                    const event = new DatabaseEvent('Error', `No se actualizo el estado del medidor ${bl.meter}`)
+                    dispatch(registerLogEvent(event))
+                }
+
+            } else {
+                const event = new DatabaseEvent('Error', `No se elimino el error de vinculo del medidor ${bl.meter}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error con la base de datos al eliminar el error de vinculo del medidor ${bl.meter}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+}
+
+export const getStakeoutProgress = (activity) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+        dispatch(clearActualStakeoutProgress())
+        try {
+            let total_db_users
+            let stakeout_db_users
+            let new_users
+            let bad_links
+            let ocs
+            let nodes 
+
+            const totalDBUsers = await db.query(
+                'SELECT COUNT(id) AS db_users FROM Users WHERE transformer_id=? AND origin=?',
+                [activity.transformer_id, 'Database']
+            )
+
+            total_db_users = totalDBUsers.data[0].db_users
+
+            const stakeoutDBUsers = await db.query(
+                'SELECT COUNT(id) AS stakeout_users FROM Users WHERE activity_id=? AND node_id<? AND origin=?',
+                [activity._id,98,'Database']
+            )
+
+            stakeout_db_users = stakeoutDBUsers.data[0].stakeout_users 
+
+            const newUsers = await db.query(
+                'SELECT COUNT(id) AS new_users FROM Users WHERE activity_id=? AND origin=?',
+                [activity._id, 'New']
+            )
+
+            new_users = newUsers.data[0].new_users
+
+            const badLinks = await db.query(
+                'SELECT COUNT(id) AS bad_links FROM BadLinks WHERE activity_id=?',
+                [activity._id]
+            )
+
+            bad_links = badLinks.data[0].bad_links
+
+            const otherChargues = await db.query(
+                'SELECT COUNT(id) AS ocs FROM Other_Chargues WHERE activity_id=?',
+                [activity._id]
+            )
+
+            ocs = otherChargues.data[0].ocs
+
+            const nodesQuery = await db.query(
+                'SELECT COUNT(id) AS nodes FROM Nodes WHERE stakeout_id=?',
+                [activity._id]
+            )
+
+            nodes = nodesQuery.data[0].nodes
+
+            const progress = {
+                total_db_users,
+                stakeout_db_users,
+                new_users,
+                bad_links,
+                ocs,
+                nodes
+            }
+
+            dispatch(setActualStakeoutProgress(progress))
+
+        } catch (e) {
+            console.log(e)
+        }
+    }
+}
+
+export const setActualStakeoutProgress = (progress) => {
+    return {
+        type: SET_ACTUAL_STAKEOUT_PROGRESS,
+        progress
+    }
+}
+
+export const clearActualStakeoutProgress = (progress) => {
+    return {
+        type: CLEAR_ACTUAL_STAKEOUT_PROGRESS,
+        progress
+    }
+} 

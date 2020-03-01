@@ -7,10 +7,12 @@ import {
     Dimensions
 } from 'react-native'
 import { Colors } from '../config'
-import { Header, Left, Button, Icon, Body, Title, Text} from 'native-base'
+import { Header, Left, Button, Icon, Body, Title, Text, Spinner} from 'native-base'
 import { addTransformerStakeOut, addStakeoutNode, delStakeoutNode, updateTransformerStakeOut, chargueTransformerStakeOut} from '../actions'
-import { addLocalActivity, loadStakeoutNodes} from '../actions/transformActivitiesActions'
+import { addLocalActivity, loadStakeoutNodes, getBadlinks, getStakeoutProgress} from '../actions/transformActivitiesActions'
 import NodeList from '../components/NodeList'
+import BadlinkList from '../components/BadlinksList'
+import StakeoutProgress from '../components/StakeoutProgress'
 
 class StakeOutScreen extends Component {
     constructor(props) {
@@ -41,12 +43,16 @@ class StakeOutScreen extends Component {
 
         this.props.addLocalActivity(activity)
         this.props.loadStakeoutNodes(activity)
+        this.props.getBadlinks(activity)
+        this.props.getStakeoutProgress(activity)
     }
 
     render () {
         const { 
             actual_activity_loaded,
             actual_nodes_loaded,
+            actual_activity_badlinks_loaded,
+            actual_stakeout_progress_loaded,
         } = this.props.transformActivities
         return (
             <View style={{flex: 1}}>
@@ -74,6 +80,12 @@ class StakeOutScreen extends Component {
                 <ScrollView style={{padding: 15}}>
                     <Text style={styles.section__title}>Estado Levantamiento</Text>
                     <View style={styles.chart__wrapper}>
+                        {
+                            (actual_activity_loaded && actual_stakeout_progress_loaded)
+                            ? (<StakeoutProgress />)
+                            : (<Spinner color='blue' />)
+                        }
+                        
                     </View>
                     <Text style={styles.section__title}>Nodos</Text>
                     <View style={styles.nodelist_wrapper}>
@@ -83,6 +95,14 @@ class StakeOutScreen extends Component {
                             : (<Text>Debe cargar datos...</Text>)
                         }
                         
+                    </View>
+                    <Text style={styles.section__title}>Errores de Vinculo</Text>
+                    <View style={styles.badlinks__wrapper}>
+                        {
+                            (actual_activity_loaded && actual_activity_badlinks_loaded)
+                            ? (<BadlinkList navigation={this.props.navigation}/>)
+                            : (<Text>No hay registros para mostrar</Text>)
+                        }
                     </View>
                     <Text style={styles.section__title}>Gestion de Datos</Text>
                     <View style={styles.data_wrapper}>
@@ -114,8 +134,7 @@ const styles = StyleSheet.create({
     },
     chart__wrapper: {
         display: 'flex',
-        height: 220,
-        backgroundColor: '#F6F6F6',
+        height: 260,
         paddingVertical: 10,
         marginBottom: 15
     },
@@ -146,6 +165,12 @@ const styles = StyleSheet.create({
     },
     button__disable: {
         backgroundColor: '#C3C3C3'
+    },
+    badlinks__wrapper: {
+        display: 'flex',
+        backgroundColor: '#F6F6F6',
+        padding: 10,
+        marginBottom: 15
     }
 })
 
@@ -174,6 +199,12 @@ const mapDispatchToProps = dispatch => ({
     },
     loadStakeoutNodes: (activity) => {
         dispatch(loadStakeoutNodes(activity))
+    },
+    getBadlinks: (activity) => {
+        dispatch(getBadlinks(activity))
+    },
+    getStakeoutProgress: (activity) => {
+        dispatch(getStakeoutProgress(activity))
     }
 })
 

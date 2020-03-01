@@ -16,7 +16,9 @@ import {
     clearActualNodeUsers,
     getNodeUsers,
     clearActualStakeoutUser,
-    clearActualNodeOCS
+    clearActualNodeOCS,
+    getBadlinks,
+    getStakeoutProgress
 } from '../actions/transformActivitiesActions'
 import NodeUserList from '../components/NodeUserList'
 import NodeOCSList from '../components/NodeOCSList'
@@ -55,6 +57,8 @@ class NodeStakeOutScreen extends Component {
                             onPress={() => {
                                 this.props.clearActualNodeUsers()
                                 this.props.clearActualNodeOCS()
+                                this.props.getBadlinks(activity)
+                                this.props.getStakeoutProgress(activity)
                                 this.props.navigation.navigate('StakeOut', {
                                     activity: activity
                                 })
@@ -226,6 +230,12 @@ const mapDispatchToProps = dispatch => ({
     },
     clearActualNodeOCS: () => {
         dispatch(clearActualNodeOCS())
+    },
+    getBadlinks: (activity) => {
+        dispatch(getBadlinks(activity))
+    },
+    getStakeoutProgress: (activity) => {
+        dispatch(getStakeoutProgress(activity))
     }
 })
 

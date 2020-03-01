@@ -16,7 +16,7 @@ import LocationField from '../components/LocationField'
 import PhotoField from '../components/PhotoField'
 import { ScrollView } from 'react-native'
 import Validator from '../clases/Validator'
-import { clearActualStakeoutUser } from '../actions/transformActivitiesActions'
+import { clearActualStakeoutUser, addBadlink } from '../actions/transformActivitiesActions'
 
 
 class BadLinkStakeOutScreen extends Component {
@@ -120,7 +120,8 @@ class BadLinkStakeOutScreen extends Component {
                     photo,
                     meter_photo,
                     new_transformer,
-                    new_transformer_photo
+                    new_transformer_photo,
+                    activity: this.props.navigation.getParam('activity')
                 }
                 this.handleSave(newBadLink)
             } else {
@@ -145,7 +146,8 @@ class BadLinkStakeOutScreen extends Component {
 
             if (!isValidInfo) {
                 const newBadLink = {
-                    type 
+                    type,
+                    activity: this.props.navigation.getParam('activity')
                 }
                 this.handleSave(newBadLink)
             } else {
@@ -155,13 +157,23 @@ class BadLinkStakeOutScreen extends Component {
     }
 
     handleSave = (badlink) => {
-        const activity = this.props.navigation.getParam('activity')
+        const user = this.props.transformActivities.actual_stakeout_user
+        badlink.user = user
+
+        this.props.addBadlink(badlink)
+
+        Alert.alert(
+            'Exito',
+            'El usuario se guardo correctamente',
+            [
+                {text: 'OK', onPress: () => this.handleCancel()}
+            ]
+        )
         
     }
 
     render() {
         const user = this.props.transformActivities.actual_stakeout_user
-        const node = this.props.navigationOptions
         return (
             <ScrollView>
                 <View style={styles.main__wrapper}>
@@ -341,6 +353,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     clearActualStakeoutUser: () => {
         dispatch(clearActualStakeoutUser())
+    },
+    addBadlink: (bl) => {
+        dispatch(addBadlink(bl))
     }
 })
 
