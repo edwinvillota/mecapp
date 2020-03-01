@@ -4,7 +4,7 @@ import {
 } from '../types'
 
 const initialState = {
-    url: 'http://192.168.0.66:5000/api'
+    url: 'http://192.168.0.16:5000/api'
 }
 
 export default apiReducer = (state = initialState, action) => {

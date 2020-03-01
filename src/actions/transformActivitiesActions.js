@@ -721,7 +721,7 @@ export const deleteNewLocalUser = (user, node) => {
 export const stakeoutOtherChargue = (oc) => {
     return async (dispatch, getState) => {
         const db = new DB()
-        await db._init
+        await db._init()
 
         try {
             const insertResults = await db.query(
@@ -754,6 +754,33 @@ export const stakeoutOtherChargue = (oc) => {
         }
     }
 }
+
+export const removeOtherChargue = (oc, node) => {
+    return async (dispatch, getState) => {
+        const db = new DB()
+        await db._init()
+
+
+        try {
+            const deleteResult = await db.query(
+                'DELETE FROM Other_Chargues WHERE id=?',
+                [oc.id]
+            )
+
+            if (deleteResult.rows_affected > 0) {
+                const event = new DatabaseEvent('Success', `La carga de tipo ${oc.type} se elimino correctamente`)
+                dispatch(registerLogEvent(event))
+                dispatch(getNodeOCS(node))
+            } else {
+                const event = new DatabaseEvent('Error', `No se encontro registro de la carga ${oc.type}:${oc.id}`)
+                dispatch(registerLogEvent(event))
+            }
+        } catch (e) {
+            const event = new DatabaseEvent('Error', `Error con la base de datos al eliminar la carga ${oc.type}:${oc.id}`, e)
+            dispatch(registerLogEvent(event))
+        }
+    }
+} 
 
 export const getNodeOCS = (node) => {
     return async (dispatch, getState) => {

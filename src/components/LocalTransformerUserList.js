@@ -75,6 +75,24 @@ class LocalTransformerUserList extends Component {
                 <View style={styles.actions__wrapper}>
                     <Button
                         icon
+                        disabled={(u.node_id !== 99 && u.node_id !== 98)}
+                        style={[
+                            styles.action__button,
+                            (u.node_id !== 99 && u.node_id !== 98) ? styles.action__disable : {backgroundColor: '#C75959'},
+                        ]}
+                        onPress={() => {
+                            this.props.handleCloseSearchModal()
+                            this.props.setActualStakeoutUser(u)
+                            this.props.navigation.navigate('BadLinkStakeOut', {
+                                activity: this.props.activity,
+                                node: this.props.node
+                            })
+                        }}
+                        >
+                        <Icon type='Feather' name='eye-off' style={styles.action__icon}/> 
+                    </Button>
+                    <Button
+                        icon
                         disabled={(u.node_id !== 99)}
                         style={[
                             styles.action__button,

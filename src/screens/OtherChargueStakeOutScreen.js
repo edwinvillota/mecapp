@@ -171,7 +171,7 @@ class OtherChargueStakeOutScreen extends Component {
                         label='Potencia W'
                         preloadData={this.state.props.power}
                         placeholder='Potencia ...'
-                        keyboardType='default'
+                        keyboardType='numeric'
                         handleChange={this.handleChange}
                         error={this.state.errors.power}
                     />
@@ -180,7 +180,7 @@ class OtherChargueStakeOutScreen extends Component {
                         label='Observación'
                         preloadData={this.state.props.comment}
                         placeholder='Observación ...' 
-                        keyboardType='numeric'
+                        keyboardType='default'
                         handleChange = {this.handleChange}
                         error={this.state.errors.comment}
                         />

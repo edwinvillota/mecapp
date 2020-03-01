@@ -17,6 +17,7 @@ import NodeStakeOutScreen from './screens/NodeStakeOutScreen'
 import UserStakeOutScreen from './screens/UserStakeOutScreen'
 import ConfigScreen from './screens/ConfigScreen'
 import OtherChargueStakeOutScreen from './screens/OtherChargueStakeOutScreen'
+import BadLinkStakeOutScreen from './screens/BadLinkStakeOutScreen'
 
 const AuthStack = createStackNavigator({
     Login: LoginScreen
@@ -35,7 +36,8 @@ const AppNavigator = createDrawerNavigator(
         OtherChargueStakeOut: OtherChargueStakeOutScreen,
         Config: ConfigScreen,
         About: AboutScreen,
-        Logout: LogoutScreen
+        Logout: LogoutScreen,
+        BadLinkStakeOut: BadLinkStakeOutScreen
     },
     {
         initialRouteName: 'Transformers',

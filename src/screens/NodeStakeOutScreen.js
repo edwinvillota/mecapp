@@ -15,7 +15,8 @@ import {
     clearActualTransformerUsers,
     clearActualNodeUsers,
     getNodeUsers,
-    clearActualStakeoutUser
+    clearActualStakeoutUser,
+    clearActualNodeOCS
 } from '../actions/transformActivitiesActions'
 import NodeUserList from '../components/NodeUserList'
 import NodeOCSList from '../components/NodeOCSList'
@@ -53,6 +54,7 @@ class NodeStakeOutScreen extends Component {
                         <Button transparent
                             onPress={() => {
                                 this.props.clearActualNodeUsers()
+                                this.props.clearActualNodeOCS()
                                 this.props.navigation.navigate('StakeOut', {
                                     activity: activity
                                 })
@@ -139,11 +141,6 @@ class NodeStakeOutScreen extends Component {
                                 >
                                 <Text style={styles.action__text}>Otras Cargas</Text>
                             </Button>
-                            <Button 
-                                style={[styles.action__button, styles.notFound__button]}
-                                >
-                                <Text style={styles.action__text}>No Encontrado</Text>
-                            </Button>
                         </View>
                     </View>
                 </ScrollView>
@@ -179,12 +176,13 @@ const styles = StyleSheet.create({
     },
     action__button: {
         height: 40,
-        width: '22%',
+        width: '32%',
         borderRadius: 0
     },
     action__text: {
         textAlign: 'center',
         color: 'white',
+        width: '100%'
     },
     cedUser__button: {
         backgroundColor: '#7AB78B'
@@ -225,6 +223,9 @@ const mapDispatchToProps = dispatch => ({
     },
     clearActualStakeoutUser: () => {
         dispatch(clearActualStakeoutUser())
+    },
+    clearActualNodeOCS: () => {
+        dispatch(clearActualNodeOCS())
     }
 })
 
